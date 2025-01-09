@@ -19,7 +19,7 @@ public class DemoController {
             // Get a reference to the Firebase Realtime Database
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
-            // Reference to the 'names' collection hh
+            // Reference to the 'names' collection
             DatabaseReference namesRef = databaseReference.child("names");
 
             // Generate a unique key for the new name entry
