@@ -23,7 +23,7 @@ public class MyCustomUserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // Fetch the user from the database using the email as the identifier.
-        User user = userService.loadUserByEmail(username);
+        User user = userService.loadUserByUucms_id(username);
 
         // Check if the user exists:
         if (user == null) {

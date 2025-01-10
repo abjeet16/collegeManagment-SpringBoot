@@ -32,8 +32,8 @@ public class MyCustomUserDetails implements UserDetails {
      * Returns the user ID.
      * @return the user ID from the User object
      */
-    public int getUserId() {
-        return this.user.getUser_id();
+    public String getUserId() {
+        return this.user.getUucms_id();
     }
 
     /**
@@ -67,7 +67,7 @@ public class MyCustomUserDetails implements UserDetails {
      */
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return user.getUucms_id();
     }
 
     /**

@@ -17,10 +17,6 @@ public class AuthResponse {
         this.myCustomUserDetails = myCustomUserDetails;
     }
 
-    public int getUserId(){
-        return this.myCustomUserDetails.getUserId();
-    }
-
     public String getUsername(){
         // This Will Return Users Email:
         return this.myCustomUserDetails.getUsername();

@@ -23,12 +23,13 @@ public class ExtractUserIDFromTokenHelper {
 
     /**
      * Method to extract the user ID from the JWT token present in the request.
+     *
      * @param request The HttpServletRequest object
      * @return The user ID extracted from the token
      */
-    public int getUserIdFromToken(HttpServletRequest request) {
+    public String getUserIdFromToken(HttpServletRequest request) {
         // Initialize the user ID variable
-        Integer user_id = null;
+        String user_id = null;
 
         // Retrieve the "Authorization" header from the request
         String authHeader = request.getHeader("Authorization");

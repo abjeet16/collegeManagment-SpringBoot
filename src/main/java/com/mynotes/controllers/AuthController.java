@@ -39,19 +39,16 @@ public class AuthController {
     @PostMapping("user/login")
     public ResponseEntity signIn(@RequestBody LoginRequest loginRequest) {
 
-        if(!checkEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword())) {
-            return new ResponseEntity("Invalid email or password", HttpStatus.BAD_REQUEST);
-        }
         // SET AUTHENTICATION:
         Authentication authentication =
                 authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+                        new UsernamePasswordAuthenticationToken(loginRequest.getUucms_id(), loginRequest.getPassword()));
         // The above line authenticates the user by checking the email and password.
         // If successful, it returns an authenticated `Authentication` object; otherwise, it throws an exception.
 
         // SET USER OBJECT:
         MyCustomUserDetails userDetails =
-                (MyCustomUserDetails) myCustomUserDetailService.loadUserByUsername(loginRequest.getEmail());
+                (MyCustomUserDetails) myCustomUserDetailService.loadUserByUsername(loginRequest.getUucms_id());
         // Fetches the custom user details, such as roles and permissions, using the provided email.
 
         // SET SECURITY CONTEXT:
@@ -74,8 +71,9 @@ public class AuthController {
     }
     // END OF USER SIGN IN POST METHOD.
 
-    @PostMapping("/register")
-    public ResponseEntity signUp(@RequestParam("first_name") String firstName,
+    @PostMapping("user/register")
+    public ResponseEntity signUp(@RequestParam("User_name") String userName,
+                                 @RequestParam("first_name") String firstName,
                                  @RequestParam("last_name") String lastName,
                                  @RequestParam("email") String email,
                                  @RequestParam("password") String password) {
@@ -92,7 +90,7 @@ public class AuthController {
         System.out.println(firstName + " " + lastName + " " + email + " " + hashed_password);
 
         // STORE USER:
-        int result = userService.signUpUser(firstName, lastName, email, hashed_password, Role.USER.toString());
+        int result = userService.signUpUser(userName,firstName, lastName, email, hashed_password, Role.USER.toString());
         // Calls the `userService` to save the user's details in the database.
         // Returns `1` if successful or some other value if there's an issue.
 

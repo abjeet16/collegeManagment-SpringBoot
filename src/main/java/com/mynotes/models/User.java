@@ -12,11 +12,13 @@ import java.time.LocalDateTime;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_id;
+    private String Uucms_id;
     private String first_name;
     private String last_name;
+    @Column(unique = true)
     private String email;
+    @Column(unique = true)
+    private Long phone;
     private String password;
 
     @CreationTimestamp
@@ -41,16 +43,24 @@ public class User {
      * -------------------------------------
      * */
 
-    public int getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
-    }
-
     public String getFirst_name() {
         return first_name;
+    }
+
+    public Long getPhone() {
+        return phone;
+    }
+
+    public void setPhone(Long phone) {
+        this.phone = phone;
+    }
+
+    public String getUucms_id() {
+        return Uucms_id;
+    }
+
+    public void setUucms_id(String uucms_id) {
+        Uucms_id = uucms_id;
     }
 
     public void setFirst_name(String first_name) {

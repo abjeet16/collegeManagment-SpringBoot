@@ -27,6 +27,10 @@ public class UserService {
     }
     // END OF LOAD USER BY EMAIL.
 
+    public User loadUserByUucms_id(String uucms_id) {
+        return userRepository.getUserByUucms_id(uucms_id);
+    }
+
     /**
      * Method to check if an email already exists in the database.
      *
@@ -49,8 +53,8 @@ public class UserService {
      * @param password   The hashed password of the user.
      * @return An integer indicating the success (1) or failure (0) of the operation.
      */
-    public int signUpUser(String first_name, String last_name, String email, String password,String role) {
-        return userRepository.signUpUser(first_name, last_name, email, password,role);
+    public int signUpUser(String User_name,String first_name, String last_name, String email, String password,String role) {
+        return userRepository.signUpUser(User_name,first_name, last_name, email, password,role);
         // Calls the repository method `signUpUser` to save the new user to the database.
     }// END OF SIGN UP USER SERVICE METHOD.
 

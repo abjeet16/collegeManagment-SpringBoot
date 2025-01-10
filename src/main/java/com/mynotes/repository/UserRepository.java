@@ -25,8 +25,9 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO users (first_name, last_name, email, password, role) VALUES (:first_name, :last_name, :email, :password, :role)", nativeQuery = true)
-    int signUpUser(@Param("first_name") String first_name,
+    @Query(value = "INSERT INTO users (Uucms_id,first_name, last_name, email, password, role) VALUES (:User_name,:first_name, :last_name, :email, :password, :role)", nativeQuery = true)
+    int signUpUser(@Param("User_name") String User_name,
+                   @Param("first_name") String first_name,
                    @Param("last_name") String last_name,
                    @Param("email") String email,
                    @Param("password") String password,
@@ -43,5 +44,7 @@ public interface UserRepository extends CrudRepository<User, Integer> {
     // Query to get password by email
     @Query(value = "SELECT password FROM users WHERE email = :email", nativeQuery = true)
     String getPasswordByEmail(@Param("email") String email);
+    @Query(value = "SELECT * FROM users WHERE uucms_id = :uucmsId", nativeQuery = true)
+    User getUserByUucms_id(String uucmsId);
 }
 // END OF USER REPOSITORY INTERFACE.
