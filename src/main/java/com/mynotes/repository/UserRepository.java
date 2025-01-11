@@ -25,13 +25,14 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO users (Uucms_id,first_name, last_name, email, password, role) VALUES (:User_name,:first_name, :last_name, :email, :password, :role)", nativeQuery = true)
+    @Query(value = "INSERT INTO users (Uucms_id,first_name, last_name, email, password, role,phone) VALUES (:User_name,:first_name, :last_name, :email, :password, :role,:phone)", nativeQuery = true)
     int signUpUser(@Param("User_name") String User_name,
                    @Param("first_name") String first_name,
                    @Param("last_name") String last_name,
                    @Param("email") String email,
                    @Param("password") String password,
-                   @Param("role") String role);
+                   @Param("role") String role,
+                   @Param("phone") String phone);
 
 
     // CHECK IF EMAIL EXISTS:The query is derived from the method name (existsBy + Email).

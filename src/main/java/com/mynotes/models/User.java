@@ -2,6 +2,7 @@ package com.mynotes.models;
 
 import com.mynotes.enums.Role;
 import jakarta.persistence.*;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -36,6 +37,15 @@ public class User {
         this.created_at = LocalDateTime.now();
     }
 
+    public User(String uucms_id, String first_name, String last_name, String email, Long phone, String password, Role role) {
+        Uucms_id = uucms_id;
+        this.first_name = first_name;
+        this.last_name = last_name;
+        this.email = email;
+        this.phone = phone;
+        this.password = password;
+        this.role = role;
+    }
 
     /**
      * ---------------------------------------

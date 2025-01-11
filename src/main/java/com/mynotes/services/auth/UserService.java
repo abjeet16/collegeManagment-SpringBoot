@@ -1,9 +1,11 @@
 package com.mynotes.services.auth;
 
+import com.mynotes.models.StudentDetails;
 import com.mynotes.models.User;
+import com.mynotes.repository.StudentDetailsRepository;
 import com.mynotes.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +16,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
     // Dependency injection for `UserRepository`, which handles database operations.
+
+    @Autowired
+    private StudentDetailsRepository studentDetailsRepository;
 
     /**
      * Method to load a user by their email.
@@ -53,10 +58,16 @@ public class UserService {
      * @param password   The hashed password of the user.
      * @return An integer indicating the success (1) or failure (0) of the operation.
      */
-    public int signUpUser(String User_name,String first_name, String last_name, String email, String password,String role) {
-        return userRepository.signUpUser(User_name,first_name, last_name, email, password,role);
+    public int signUpUser(String User_name,String first_name, String last_name, String email, String password,String role,String phoneNumber) {
+        return userRepository.signUpUser(User_name,first_name, last_name, email, password,role,phoneNumber);
         // Calls the repository method `signUpUser` to save the new user to the database.
     }// END OF SIGN UP USER SERVICE METHOD.
+
+    @Transactional
+    public int addStudentUsers(String User_name,String first_name, String last_name, String email, String password,String role,String phoneNumber,StudentDetails studentDetails) {
+        studentDetailsRepository.save(studentDetails);
+        return userRepository.signUpUser(User_name,first_name, last_name, email, password,role,phoneNumber);
+    }
 
     public boolean doesWithEmailExist(String email) {
         return userRepository.existsByEmail(email);
