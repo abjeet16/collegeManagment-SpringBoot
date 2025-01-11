@@ -7,6 +7,10 @@ import com.mynotes.services.JwtTokenService;
 import com.mynotes.services.auth.MyCustomUserDetailService;
 import com.mynotes.services.auth.MyCustomUserDetails;
 import com.mynotes.services.auth.UserService;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +20,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.*;
 
 @RestController
 @RequestMapping("auth") // Base path for all endpoints in this controller.
@@ -90,7 +97,7 @@ public class AuthController {
         System.out.println(firstName + " " + lastName + " " + email + " " + hashed_password);
 
         // STORE USER:
-        int result = userService.signUpUser(userName,firstName, lastName, email, hashed_password, Role.USER.toString());
+        int result = userService.signUpUser(userName, firstName, lastName, email, hashed_password, Role.USER.toString());
         // Calls the `userService` to save the user's details in the database.
         // Returns `1` if successful or some other value if there's an issue.
 
@@ -125,5 +132,79 @@ public class AuthController {
         }
         return true;
     }
+
+    @PostMapping("user/register-bulk") // Handles HTTP POST requests to the endpoint "user/register-bulk".
+    public ResponseEntity<Map<String, Object>> registerUsersFromFile() {
+        // Path to the Excel file containing user data.
+        String filePath = "C:\\abjeet body\\certificate\\projects\\collegemanagement\\notePadAPISpringBoot-JWT-Token-Auth-\\users\\userDetails.xlsx";
+
+        List<String> failedEntries = new ArrayList<>(); // List to store failed registration details.
+        int successCount = 0; // Counter to track successful registrations.
+
+        try (Workbook workbook = new XSSFWorkbook(filePath)) {
+            // Open the Excel file as a workbook (XSSFWorkbook is for .xlsx files).
+            Sheet sheet = workbook.getSheetAt(0); // Access the first sheet in the workbook.
+            Iterator<Row> rows = sheet.iterator(); // Create an iterator to loop through rows.
+
+            while (rows.hasNext()) { // Iterate over all rows in the sheet.
+                Row row = rows.next();
+
+                // Skip the header row (first row).
+                if (row.getRowNum() == 0) {
+                    continue;
+                }
+
+                try {
+                    // Extract data from each cell in the row.
+                    String userName = row.getCell(0).getStringCellValue(); // Username
+                    String firstName = row.getCell(1).getStringCellValue(); // First name
+                    String lastName = row.getCell(2).getStringCellValue(); // Last name
+                    String email = row.getCell(3).getStringCellValue(); // Email
+                    String password = row.getCell(4).getStringCellValue(); // Password
+                    String role = row.getCell(5).getStringCellValue(); // Role
+
+                    // Validate extracted data. If any value is null, add to failed entries and skip.
+                    if (userName == null || firstName == null || lastName == null || email == null || password == null || role == null) {
+                        failedEntries.add("Incomplete data at row: " + row.getRowNum());
+                        continue;
+                    }
+
+                    // Check if the email already exists in the database.
+                    if (userService.doesWithEmailExist(email)) {
+                        failedEntries.add("Email already exists: " + email);
+                        continue;
+                    }
+
+                    // Hash the password for secure storage.
+                    String hashedPassword = passwordEncoder.encode(password);
+
+                    // Register the user using the service method and convert role to uppercase.
+                    int result = userService.signUpUser(userName, firstName, lastName, email, hashedPassword, role.toUpperCase());
+
+                    if (result == 1) { // Check if registration was successful.
+                        successCount++; // Increment success counter.
+                    } else {
+                        failedEntries.add("Failed to register user: " + email);
+                    }
+                } catch (Exception e) {
+                    // Log any error during row processing.
+                    failedEntries.add("Error processing row: " + row.getRowNum() + " - " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            // Catch errors while opening or reading the file and return an error response.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error processing the file: " + e.getMessage()));
+        }
+
+        // Prepare the response body with success count and failed entries.
+        Map<String, Object> response = new HashMap<>();
+        response.put("successCount", successCount);
+        response.put("failedEntries", failedEntries);
+
+        // Return HTTP response: 201 (Created) if successCount > 0, else 400 (Bad Request).
+        return ResponseEntity.status(successCount > 0 ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST).body(response);
+    }
+    // END OF BULK REGISTER USERS
 }
 // END OF AUTH REST CONTROLLER CLASS.

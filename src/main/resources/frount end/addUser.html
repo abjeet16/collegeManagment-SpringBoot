@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk User Registration</title>
+</head>
+<body>
+<h1>Bulk User Registration</h1>
+<form id="uploadForm" enctype="multipart/form-data" method="POST" action="http://localhost:8081/api/v1/auth/user/register-bulk">
+    <label for="file">Upload Excel File:</label><br>
+    <input type="file" id="file" name="file" accept=".xlsx" required>
+    <br><br>
+    <button type="submit">Upload</button>
+</form>
+
+<div id="response" style="margin-top: 20px;">
+    <!-- The response from the server will be displayed here -->
+</div>
+
+<script>
+    const form = document.getElementById('uploadForm');
+    const responseDiv = document.getElementById('response');
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('/user/register-bulk', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            // Display server response
+            if (response.ok) {
+                responseDiv.innerHTML = `
+                    <h3>Upload Successful</h3>
+                    <p><strong>Users Registered:</strong> ${result.successCount}</p>
+                    <p><strong>Failed Entries:</strong></p>
+                    <ul>
+                        ${result.failedEntries.map(entry => `<li>${entry}</li>`).join('')}
+                    </ul>
+                `;
+            } else {
+                responseDiv.innerHTML = `
+                    <h3>Error</h3>
+                    <p>${result}</p>
+                `;
+            }
+        } catch (error) {
+            responseDiv.innerHTML = `
+                <h3>Error</h3>
+                <p>Unable to upload the file. Please try again.</p>
+            `;
+        }
+    });
+</script>
+</body>
+</html>
