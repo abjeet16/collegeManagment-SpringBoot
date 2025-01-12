@@ -1,8 +1,10 @@
 package com.mynotes.services.auth;
 
 import com.mynotes.models.StudentDetails;
+import com.mynotes.models.TeacherDetails;
 import com.mynotes.models.User;
 import com.mynotes.repository.StudentDetailsRepository;
+import com.mynotes.repository.TeacherDetailsRepository;
 import com.mynotes.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class UserService {
 
     @Autowired
     private StudentDetailsRepository studentDetailsRepository;
+
+    @Autowired
+    private TeacherDetailsRepository teacherDetailsRepository;
 
     /**
      * Method to load a user by their email.
@@ -65,8 +70,16 @@ public class UserService {
 
     @Transactional
     public int addStudentUsers(String User_name,String first_name, String last_name, String email, String password,String role,String phoneNumber,StudentDetails studentDetails) {
+        int result = userRepository.signUpUser(User_name,first_name, last_name, email, password,role,phoneNumber);
         studentDetailsRepository.save(studentDetails);
-        return userRepository.signUpUser(User_name,first_name, last_name, email, password,role,phoneNumber);
+        return result;
+    }
+
+    @Transactional
+    public int addTeacherUsers(String User_name, String first_name, String last_name, String email, String password, String role, String phoneNumber, TeacherDetails teacherDetails) {
+        int result = userRepository.signUpUser(User_name,first_name, last_name, email, password,role,phoneNumber);
+        teacherDetailsRepository.save(teacherDetails);
+        return result;
     }
 
     public boolean doesWithEmailExist(String email) {

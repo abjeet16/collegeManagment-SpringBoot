@@ -4,11 +4,13 @@ import com.mynotes.dto.requests.LoginRequest;
 import com.mynotes.dto.responses.AuthResponse;
 import com.mynotes.enums.Role;
 import com.mynotes.models.StudentDetails;
+import com.mynotes.models.TeacherDetails;
 import com.mynotes.models.User;
 import com.mynotes.services.JwtTokenService;
 import com.mynotes.services.auth.MyCustomUserDetailService;
 import com.mynotes.services.auth.MyCustomUserDetails;
 import com.mynotes.services.auth.UserService;
+import org.apache.poi.ss.formula.atp.Switch;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -152,13 +154,12 @@ public class AuthController {
 
             try (Workbook workbook = new XSSFWorkbook(Files.newInputStream(absolutePath))) {
                 Sheet sheet = workbook.getSheetAt(0);
-                Iterator<Row> rows = sheet.iterator();
 
-                while (rows.hasNext()) {
-                    Row row = rows.next();
+                for (Row row : sheet) {
                     if (row.getRowNum() == 0) continue; // Skip header row
 
                     try {
+                        // Extract cell values
                         String userName = getCellValueAsString(row.getCell(0));
                         String firstName = getCellValueAsString(row.getCell(1));
                         String lastName = getCellValueAsString(row.getCell(2));
@@ -169,6 +170,7 @@ public class AuthController {
                         int batchYear = (int) row.getCell(7).getNumericCellValue();
                         String phone = getCellValueAsString(row.getCell(8));
 
+                        // Validate row data
                         if (!isRowValid(userName, firstName, lastName, email, password, phone)) {
                             failedEntries.add("Invalid data at row: " + row.getRowNum());
                             continue;
@@ -179,14 +181,19 @@ public class AuthController {
                             continue;
                         }
 
+                        // Create User
+                        String hashedPassword = passwordEncoder.encode(password);
+                        User user = new User(userName, firstName, lastName, email, Long.parseLong(phone), hashedPassword, Role.STUDENT);
+
+                        // Create StudentDetails
                         StudentDetails studentDetails = new StudentDetails();
+                        studentDetails.setUser(user);
                         studentDetails.setCourse(course);
                         studentDetails.setSection(section);
                         studentDetails.setBatchYear(batchYear);
 
-                        String hashedPassword = passwordEncoder.encode(password);
-                        int result = userService.addStudentUsers(userName, firstName, lastName, email, hashedPassword,
-                                Role.STUDENT.toString(), phone, studentDetails);
+                        // Save User and StudentDetails
+                        int result = userService.addStudentUsers(userName, firstName, lastName, email, hashedPassword, Role.STUDENT.toString(), phone, studentDetails);
 
                         if (result == 1) successCount++;
                         else failedEntries.add("Failed to register user: " + email);
@@ -209,16 +216,21 @@ public class AuthController {
     }
 
     private boolean isRowValid(String userName, String firstName, String lastName, String email, String password, String phone) {
-        return userName != null && firstName != null && lastName != null && email != null &&
+        // Add more validations as needed (e.g., regex for email, length checks)
+        return userName != null && firstName != null && lastName != null &&
+                email != null && email.contains("@") &&
                 password != null && phone != null && !phone.isEmpty();
     }
 
     private String getCellValueAsString(Cell cell) {
         if (cell == null) return null;
         switch (cell.getCellType()) {
-            case STRING: return cell.getStringCellValue();
-            case NUMERIC: return String.valueOf((long) cell.getNumericCellValue());
-            default: return null;
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf((long) cell.getNumericCellValue());
+            default:
+                return null;
         }
     }
 
@@ -276,8 +288,13 @@ public class AuthController {
                         // Hash the password for secure storage.
                         String hashedPassword = passwordEncoder.encode(password);
 
+                        User user = new User(userName, firstName, lastName, email, Long.parseLong(phone), hashedPassword, Role.STUDENT);
+                        TeacherDetails teacherDetails = new TeacherDetails();
+                        teacherDetails.setUser(user);
+                        teacherDetails.setDepartment(department);
+
                         // Attempt to register the user. Convert the role to uppercase to match the database format.
-                        int result = userService.signUpUser(userName, firstName, lastName, email, hashedPassword,Role.TEACHER.toString(),phone);
+                        int result = userService.addTeacherUsers(userName, firstName, lastName, email, hashedPassword,Role.TEACHER.toString(),phone,teacherDetails);
 
                         // Check if the registration was successful.
                         if (result == 1) {
