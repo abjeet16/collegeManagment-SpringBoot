@@ -1,5 +1,7 @@
 package com.mynotes.services.auth;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.mynotes.models.StudentDetails;
 import com.mynotes.models.TeacherDetails;
 import com.mynotes.models.User;
@@ -10,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service // Marks this class as a service, part of the Spring Service layer.
 public class UserService {
@@ -72,7 +76,47 @@ public class UserService {
     public int addStudentUsers(String User_name,String first_name, String last_name, String email, String password,String role,String phoneNumber,StudentDetails studentDetails) {
         int result = userRepository.signUpUser(User_name,first_name, last_name, email, password,role,phoneNumber);
         studentDetailsRepository.save(studentDetails);
+        addStudentToFireBase(studentDetails);
         return result;
+    }
+
+    private void addStudentToFireBase(StudentDetails studentDetails) {
+        try {
+            // Get a reference to the Firebase Realtime Database
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+
+            // Extract necessary details from the StudentDetails object
+            String courseName = studentDetails.getCourse();
+            String section = studentDetails.getSection();
+            int batchYear = studentDetails.getBatchYear();
+            User user = studentDetails.getUser(); // Assuming `user` is not null
+            String userId = user.getUucms_id();         // Unique identifier for the student
+            String name = user.getFirst_name()+" "+user.getLast_name();         // Student's name
+
+            // Validate necessary fields
+            if (courseName == null || section == null || userId == null || name == null) {
+                System.out.println("Invalid data. Cannot proceed.");
+                return;
+            }
+
+            // Create the hierarchical key in the format `course_section_batchYear`
+            String classKey = courseName + "_" + section + "_" + batchYear;
+
+            // Create a reference for the specific student under the classKey
+            DatabaseReference studentRef = databaseReference.child(classKey).child(userId);
+
+            // Structure the student's data
+            Map<String, Object> studentData = new HashMap<>();
+            studentData.put("name", name);
+            studentData.put("attendance", new HashMap<>()); // Empty map for attendance, to be updated later
+
+            // Save the data for the student
+            studentRef.setValueAsync(studentData);
+
+            System.out.println("Student data saved successfully under: " + classKey + "/" + userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Transactional
