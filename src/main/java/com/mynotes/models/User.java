@@ -47,6 +47,20 @@ public class User {
         this.role = role;
     }
 
+    public User(String uucms_id, String first_name, String last_name, String email, Long phone, String password, LocalDateTime created_at, LocalDateTime updated_at, Role role) {
+        Uucms_id = uucms_id;
+        this.first_name = first_name;
+        this.last_name = last_name;
+        this.email = email;
+        this.phone = phone;
+        this.password = password;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
+        this.role = role;
+    }
+
+    public User() {}
+
     /**
      * ---------------------------------------
      *  GETTERS AND SETTERS:

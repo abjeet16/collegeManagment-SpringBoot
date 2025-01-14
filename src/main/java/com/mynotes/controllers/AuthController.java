@@ -53,7 +53,6 @@ public class AuthController {
 
     @PostMapping("user/login")
     public ResponseEntity signIn(@RequestBody LoginRequest loginRequest) {
-
         // SET AUTHENTICATION:
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -106,7 +105,7 @@ public class AuthController {
         System.out.println(firstName + " " + lastName + " " + email + " " + hashed_password);
 
         // STORE USER:
-        int result = userService.signUpUser(userName, firstName, lastName, email, hashed_password, Role.USER.toString(), phone);
+        int result = userService.signUpUser(userName, firstName, lastName, email, hashed_password, Role.ADMIN.toString(), phone);
         // Calls the `userService` to save the user's details in the database.
         // Returns `1` if successful or some other value if there's an issue.
 
@@ -188,12 +187,11 @@ public class AuthController {
                         // Create StudentDetails
                         StudentDetails studentDetails = new StudentDetails();
                         studentDetails.setUser(user);
-                        studentDetails.setCourse(course);
                         studentDetails.setSection(section);
                         studentDetails.setBatchYear(batchYear);
 
                         // Save User and StudentDetails
-                        int result = userService.addStudentUsers(userName, firstName, lastName, email, hashedPassword, Role.STUDENT.toString(), phone, studentDetails);
+                        int result = userService.addStudentUsers(userName, firstName, lastName, email, hashedPassword, Role.STUDENT.toString(), phone, studentDetails,course.toUpperCase());
 
                         if (result == 1) successCount++;
                         else failedEntries.add("Failed to register user: " + email);
