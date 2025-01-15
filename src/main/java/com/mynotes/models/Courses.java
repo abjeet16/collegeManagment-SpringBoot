@@ -16,9 +16,6 @@ public class Courses {
     @Column(name = "course_name", unique = true, nullable = false)
     private String courseName;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ClassEntity> classes;
-
     public void setCourseName(String courseName) {
         this.courseName = courseName.toUpperCase();
     }

@@ -187,11 +187,9 @@ public class AuthController {
                         // Create StudentDetails
                         StudentDetails studentDetails = new StudentDetails();
                         studentDetails.setUser(user);
-                        studentDetails.setSection(section);
-                        studentDetails.setBatchYear(batchYear);
 
                         // Save User and StudentDetails
-                        int result = userService.addStudentUsers(userName, firstName, lastName, email, hashedPassword, Role.STUDENT.toString(), phone, studentDetails,course.toUpperCase());
+                        int result = userService.addStudentUsers(userName, firstName, lastName, email, hashedPassword, Role.STUDENT.toString(), phone, studentDetails,course,section,batchYear);
 
                         if (result == 1) successCount++;
                         else failedEntries.add("Failed to register user: " + email);

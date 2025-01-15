@@ -2,14 +2,8 @@ package com.mynotes.services.auth;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.mynotes.models.Courses;
-import com.mynotes.models.StudentDetails;
-import com.mynotes.models.TeacherDetails;
-import com.mynotes.models.User;
-import com.mynotes.repository.CourseRepository;
-import com.mynotes.repository.StudentDetailsRepository;
-import com.mynotes.repository.TeacherDetailsRepository;
-import com.mynotes.repository.UserRepository;
+import com.mynotes.models.*;
+import com.mynotes.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +27,9 @@ public class UserService {
     @Autowired
     private CourseRepository courseRepository;
 
+    @Autowired
+    private ClassRepository classRepository;
+
     public User loadUserByEmail(String email) {
         return userRepository.getUserByEmail(email);
     }
@@ -50,16 +47,19 @@ public class UserService {
     }
 
     @Transactional
-    public int addStudentUsers(String userName, String firstName, String lastName, String email, String password, String role, String phoneNumber, StudentDetails studentDetails, String upperCase) {
+    public int addStudentUsers(String userName, String firstName, String lastName, String email, String password, String role, String phoneNumber, StudentDetails studentDetails, String upperCase, String section, int batchYear) {
         int result = userRepository.signUpUser(userName, firstName, lastName, email, password, role, phoneNumber);
 
-        // Validate course name before proceeding
         Courses course = courseRepository.findByCourseName(upperCase);
         if (course == null) {
             throw new IllegalArgumentException("Course not found: " + upperCase);
         }
-
-        studentDetails.setCourse(course);
+        // Validate course name before proceeding
+        ClassEntity classEntity = classRepository.findBySectionAndBatchYearAndCourse(section,batchYear, course);
+        if (classEntity == null) {
+            throw new IllegalArgumentException("class not found");
+        }
+        studentDetails.setClassEntity(classEntity);
         studentDetailsRepository.save(studentDetails);
         addStudentToFireBase(studentDetails);
         return result;
@@ -70,13 +70,13 @@ public class UserService {
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
             // Validate StudentDetails fields
-            if (studentDetails == null || studentDetails.getCourse() == null || studentDetails.getUser() == null) {
+            if (studentDetails == null || studentDetails.getClassEntity().getCourse() == null || studentDetails.getUser() == null) {
                 throw new IllegalArgumentException("Invalid student details. Cannot proceed.");
             }
 
-            String courseName = studentDetails.getCourse().getCourseName();
-            String section = studentDetails.getSection();
-            int batchYear = studentDetails.getBatchYear();
+            String courseName = studentDetails.getClassEntity().getCourse().getCourseName();
+            String section = studentDetails.getClassEntity().getSection();
+            String batchYear = String.valueOf(studentDetails.getClassEntity().getBatchYear());
             User user = studentDetails.getUser();
             String userId = user.getUucms_id();
             String name = user.getFirst_name() + " " + user.getLast_name();

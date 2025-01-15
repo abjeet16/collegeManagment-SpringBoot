@@ -1,8 +1,10 @@
 package com.mynotes.controllers;
 
+import com.mynotes.dto.requests.AddClassReqDTO;
 import com.mynotes.dto.requests.AddCourseReqDTO;
 import com.mynotes.dto.requests.AddSubjectReqDTO;
 import com.mynotes.models.Courses;
+import com.mynotes.services.ClassService;
 import com.mynotes.services.CourseService;
 import com.mynotes.services.SubjectService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,8 @@ public class AdminController {
     private CourseService courseService;
 
     private final SubjectService subjectService;
+
+    private final ClassService classService;
 
     @PostMapping("/add_course")
     private ResponseEntity<String> addCourse(@RequestBody AddCourseReqDTO addCourseReqDTO) {
@@ -48,5 +52,15 @@ public class AdminController {
         }
     }
 
-
+    @PostMapping("/add_class")
+    public ResponseEntity<String> addClass(@RequestBody AddClassReqDTO addClassReqDTO) {
+        try {
+            classService.addClass(addClassReqDTO);
+            return ResponseEntity.ok("Class added successfully!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
+    }
 }

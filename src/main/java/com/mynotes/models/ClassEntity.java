@@ -14,7 +14,7 @@ public class ClassEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
@@ -22,9 +22,13 @@ public class ClassEntity {
     private Courses course;
 
     @NotNull(message = "Batch year is required")
-    private String batchYear;
+    private int batchYear;
 
     @NotBlank(message = "Section is required")
     private String section; // For example: A, B, C
+
+    public void setSection(@NotBlank(message = "Section is required") String section) {
+        this.section = section.toUpperCase();
+    }
 }
 
