@@ -3,7 +3,9 @@ package com.mynotes.controllers;
 import com.mynotes.dto.requests.AddClassReqDTO;
 import com.mynotes.dto.requests.AddCourseReqDTO;
 import com.mynotes.dto.requests.AddSubjectReqDTO;
+import com.mynotes.dto.requests.AssignTeacherDTO;
 import com.mynotes.models.Courses;
+import com.mynotes.services.AssignedTeacherService;
 import com.mynotes.services.ClassService;
 import com.mynotes.services.CourseService;
 import com.mynotes.services.SubjectService;
@@ -27,6 +29,8 @@ public class AdminController {
     private final SubjectService subjectService;
 
     private final ClassService classService;
+
+    private final AssignedTeacherService assignedTeacherService;
 
     @PostMapping("/add_course")
     private ResponseEntity<String> addCourse(@RequestBody AddCourseReqDTO addCourseReqDTO) {
@@ -59,6 +63,16 @@ public class AdminController {
             return ResponseEntity.ok("Class added successfully!");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/assignTeacher")
+    public ResponseEntity<String> assignTeacher(@RequestBody AssignTeacherDTO assignTeacherDTO) {
+        try {
+            assignedTeacherService.assignTeacherToSubject(assignTeacherDTO);
+            return ResponseEntity.ok("Teacher assigned successfully!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }

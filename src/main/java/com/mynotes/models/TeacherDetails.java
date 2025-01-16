@@ -12,7 +12,7 @@ public class TeacherDetails {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false) // Foreign key column for User
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Enumerated(EnumType.STRING)
