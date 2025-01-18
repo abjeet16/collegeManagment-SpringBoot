@@ -40,6 +40,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests()
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/teacher/**").hasAuthority(Role.TEACHER.toString())
+                .requestMatchers("/Admin/**").hasAuthority(Role.ADMIN.toString())
                 // Publicly accessible endpoints for authentication and general information.
 
                 .anyRequest().authenticated()

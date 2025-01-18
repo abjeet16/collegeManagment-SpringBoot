@@ -70,6 +70,14 @@ public class MyCustomUserDetails implements UserDetails {
         return user.getUucms_id();
     }
 
+    public String getEmail() {
+        return user.getEmail();
+    }
+
+    public Long getPhone(){
+        return user.getPhone();
+    }
+
     /**
      * Indicates whether the user's account is expired.
      * @return true since account expiration is not implemented

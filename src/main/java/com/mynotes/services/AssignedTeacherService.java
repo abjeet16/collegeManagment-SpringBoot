@@ -7,6 +7,8 @@ import com.mynotes.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AssignedTeacherService {
@@ -45,5 +47,15 @@ public class AssignedTeacherService {
         assignedTeacher.setClassEntity(classEntity);
         assignedTeacher.setTeacher(teacherDetails);
         assignedTeacherRepository.save(assignedTeacher);
+    }
+
+    public List<AssignedTeacher> getMyClasses(String uucmsId){
+        TeacherDetails teacherDetails = teacherRepository.findTeacherDetailsByUucmsId(uucmsId);
+        List<AssignedTeacher> assignedTeacher = assignedTeacherRepository.findAssignedTeachersByTeacherId(teacherDetails.getId());
+        if (assignedTeacher == null){
+            throw new IllegalArgumentException("teacher doesn't have any class assigned");
+        }else {
+            return assignedTeacher;
+        }
     }
 }
