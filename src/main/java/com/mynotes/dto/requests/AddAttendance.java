@@ -8,4 +8,5 @@ public class AddAttendance {
     private Long classId;
     private Boolean isPresent;
     private Long subjectId;
+    private int schedulePeriod;
 }

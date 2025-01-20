@@ -1,7 +1,9 @@
 package com.mynotes.controllers;
 
 import com.mynotes.dto.responses.UserProfileDTO;
+import com.mynotes.services.AttendanceService;
 import com.mynotes.services.auth.MyCustomUserDetails;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,7 +15,10 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("User")
+@RequiredArgsConstructor
 public class UserController {
+
+    private final AttendanceService attendanceService;
 
     @GetMapping("/my_profile")
     public ResponseEntity<UserProfileDTO> getMyProfile() {
@@ -44,5 +49,8 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.status(401).body(null);
         }
+
+        int totalAttendences = attendanceService.getTotalAttendencePercentage(user.getUserId());
+        return ResponseEntity.ok(totalAttendences);
     }
 }

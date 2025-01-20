@@ -21,7 +21,7 @@ public class JwtTokenService {
     // Secret key used for signing JWT tokens.
     public String SECRET_KEY = "33743677397A24432646294A404E635266556A576E5A7234753778214125442A";
     private Date CURRENT_TIME = new Date(System.currentTimeMillis()); // Sets the current time for the token issuance.
-    private Date EXPIRATION_TIME = new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24); // Sets the expiration time for the token (24 hours).
+    private Date EXPIRATION_TIME = new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 *10); // Sets the expiration time for the token (24 hours).
 
     /**
      * Extracts the username (subject) from the JWT token.

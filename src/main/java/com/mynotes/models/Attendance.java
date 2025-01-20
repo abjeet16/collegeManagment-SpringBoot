@@ -33,5 +33,8 @@ public class Attendance {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private AttendanceStatus status;
+
+    @Column(name = "schedule_period", nullable = false)
+    private int schedulePeriod;
 }
 
