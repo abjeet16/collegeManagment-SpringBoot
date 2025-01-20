@@ -39,7 +39,12 @@ public class TeacherController {
     }
 
     @PostMapping("/mark_attendance")
-    public ResponseEntity<String> markAttendance(@RequestBody List<AddAttendance> attendanceRecords) {
+    public ResponseEntity<String> markAttendance(
+            @RequestParam Long classId,
+            @RequestParam Long subjectId,
+            @RequestParam int schedulePeriod,
+            @RequestBody List<AddAttendance> attendanceRecords) {
+
         // Get the current authenticated user
         MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -47,19 +52,24 @@ public class TeacherController {
         if (user == null) {
             return ResponseEntity.status(401).body("Unauthorized access");
         }
+
         // Validate and save attendance records
         attendanceRecords.forEach(record -> {
             Attendance attendance = new Attendance();
             attendance.setStudentId(record.getStudentId());
-            attendance.setTeacherId(user.getUserId());
-            attendance.setClassId(record.getClassId());
-            attendance.setAttendanceDate(LocalDate.now());
-            attendance.setSubjectId(record.getSubjectId());
-            if (record.getIsPresent()) {
+            attendance.setTeacherId(user.getUserId()); // From authenticated user
+            attendance.setClassId(classId); // Common value
+            attendance.setSubjectId(subjectId); // Common value
+            attendance.setSchedulePeriod(schedulePeriod); // Common value
+            attendance.setAttendanceDate(LocalDate.now()); // Common value
+
+            // Set attendance status
+            if (Boolean.TRUE.equals(record.getIsPresent())) {
                 attendance.setStatus(AttendanceStatus.PRESENT);
             } else {
                 attendance.setStatus(AttendanceStatus.ABSENT);
             }
+
             attendanceService.saveAttendance(attendance); // Save each attendance record
         });
 

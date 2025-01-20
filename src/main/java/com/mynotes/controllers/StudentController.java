@@ -54,7 +54,7 @@ public class StudentController {
         }
         List<Attendance> attendances = attendanceService.getSubjectAbsent(subjectId, user.getUserId());
 
-        List<SubjectAndDateDTO> absentStudents = attendances.stream().map(attendance -> new SubjectAndDateDTO(attendance.getSubjectId(), attendance.getAttendanceDate())).toList();
+        List<SubjectAndDateDTO> absentStudents = attendances.stream().map(attendance -> new SubjectAndDateDTO(attendance.getSchedulePeriod(), attendance.getAttendanceDate())).toList();
         return ResponseEntity.ok(absentStudents);
     }
 }

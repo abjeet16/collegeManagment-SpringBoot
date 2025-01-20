@@ -60,6 +60,7 @@ public class AttendanceService {
     public Integer getTotalAttendencePercentage(String studentId) {
         Long presentCount = getPresentCountByStudentId(studentId);
         Long totalCount = presentCount + getAbsentCountByStudentId(studentId);
+        if (totalCount == 0) return 0;
         return Math.toIntExact((presentCount * 100) / totalCount);
     }
 
