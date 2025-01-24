@@ -18,5 +18,9 @@ public class StudentDetails {
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
     private ClassEntity classEntity;
+
+    public String getStudentName() {
+        return user.getFirst_name() + " " + user.getLast_name();
+    }
 }
 
