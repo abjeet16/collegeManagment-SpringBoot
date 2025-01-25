@@ -1,6 +1,7 @@
 package com.mynotes.controllers;
 
 import com.mynotes.dto.requests.AddAttendance;
+import com.mynotes.dto.requests.AttendanceRequest;
 import com.mynotes.dto.responses.AllStudentsOfAClass;
 import com.mynotes.dto.responses.ClassWithSubjectDto;
 import com.mynotes.enums.AttendanceStatus;
@@ -12,8 +13,11 @@ import com.mynotes.services.AssignedTeacherService;
 import com.mynotes.services.AttendanceService;
 import com.mynotes.services.StudentService;
 import com.mynotes.services.auth.MyCustomUserDetails;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,37 +60,48 @@ public class TeacherController {
             @RequestParam Long classId,
             @RequestParam Long subjectId,
             @RequestParam int schedulePeriod,
-            @RequestBody List<AddAttendance> attendanceRecords) {
+            @RequestBody AttendanceRequest request) {
 
-        // Get the current authenticated user
-        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        // Authenticate user
+        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-        // Check if the user is authenticated
         if (user == null) {
-            return ResponseEntity.status(401).body("Unauthorized access");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access");
         }
 
-        // Validate and save attendance records
-        attendanceRecords.forEach(record -> {
-            Attendance attendance = new Attendance();
-            attendance.setStudentId(record.getStudentId());
-            attendance.setTeacherId(user.getUserId()); // From authenticated user
-            attendance.setClassId(classId); // Common value
-            attendance.setSubjectId(subjectId); // Common value
-            attendance.setSchedulePeriod(schedulePeriod); // Common value
-            attendance.setAttendanceDate(LocalDate.now()); // Common value
+        // Validate input
+        List<AddAttendance> attendanceRecords = request.getAttendanceRecords();
+        if (attendanceRecords == null || attendanceRecords.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Attendance records cannot be empty");
+        }
 
-            // Set attendance status
-            if (Boolean.TRUE.equals(record.getIsPresent())) {
-                attendance.setStatus(AttendanceStatus.PRESENT);
-            } else {
-                attendance.setStatus(AttendanceStatus.ABSENT);
+        try {
+            // Process attendance records
+            for (AddAttendance record : attendanceRecords) {
+                Attendance attendance = new Attendance();
+                attendance.setStudentId(record.getStudentId());
+                attendance.setTeacherId(user.getUserId());
+                attendance.setClassId(classId);
+                attendance.setSubjectId(subjectId);
+                attendance.setSchedulePeriod(schedulePeriod);
+                attendance.setAttendanceDate(LocalDate.now());
+
+                // Set attendance status
+                attendance.setStatus(Boolean.TRUE.equals(record.getIsPresent())
+                        ? AttendanceStatus.PRESENT
+                        : AttendanceStatus.ABSENT);
+
+                attendanceService.saveAttendance(attendance); // Save attendance record
             }
 
-            attendanceService.saveAttendance(attendance); // Save each attendance record
-        });
+            return ResponseEntity.ok("Attendance marked successfully!");
 
-        return ResponseEntity.ok("Attendance marked successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to mark attendance due to an internal error.");
+        }
     }
 
     @GetMapping("/{classId}/students")
