@@ -102,7 +102,7 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to mark attendance due to an internal error.");
         }
-    }
+    }//fake
 
     @GetMapping("/{classId}/students")
     public ResponseEntity<List<AllStudentsOfAClass>> getStudentsOfAClass(@PathVariable int classId) {
