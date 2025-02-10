@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("loginForm").addEventListener("submit", function (event) {
+                event.preventDefault();  // Prevent default form submission
+
+                var uucms_id = document.getElementById("uucms_id").value;
+                var password = document.getElementById("password").value;
+
+                fetch("/api/v1/auth/web/login", {  // ✅ Ensure this path matches your backend API
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        uucms_id: uucms_id,
+                        password: password
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Login failed. Check your credentials.");
+                    }
+                    return response.json(); // Expecting JSON response with token
+                })
+                .then(data => {
+                    if (data.token) {
+                        localStorage.setItem("jwtToken", data.token);  // ✅ Store token in localStorage
+                        localStorage.setItem("userName", data.username);
+                        localStorage.setItem("role", data.role);
+
+                        alert("Login successful!");
+                        window.location.href = "/api/v1/Admin/dashboard";  // ✅ Redirect to dashboard
+                    } else {
+                        alert("Invalid login response. No token received.");
+                    }
+                })
+                .catch(error => {
+                    alert("Error: " + error.message);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+<h2>User Login</h2>
+<form id="loginForm">  <!-- ✅ Ensure script binds properly -->
+    <label for="uucms_id">User ID:</label>
+    <input type="text" id="uucms_id" name="uucms_id" required>
+    <br><br>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br><br>
+
+    <button type="submit">Login</button>
+</form>
+
+<p th:if="${error}" th:text="${error}" style="color:red;"></p>
+</body>
+</html>
+
+
+
