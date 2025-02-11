@@ -23,20 +23,8 @@ public class User {
     private Long phone;
     private String password;
 
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime created_at = LocalDateTime.now();  // Automatically set on creation
-
-    @UpdateTimestamp
-    private LocalDateTime updated_at;  // Automatically updated on update
-
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER; // Default role set to USER
-
-    @PrePersist
-    protected void onCreate() {
-        this.created_at = LocalDateTime.now();
-    }
 
     public User(String uucms_id, String first_name, String last_name, String email, Long phone, String password, Role role) {
         Uucms_id = uucms_id;
@@ -45,18 +33,6 @@ public class User {
         this.email = email;
         this.phone = phone;
         this.password = password;
-        this.role = role;
-    }
-
-    public User(String uucms_id, String first_name, String last_name, String email, Long phone, String password, LocalDateTime created_at, LocalDateTime updated_at, Role role) {
-        Uucms_id = uucms_id;
-        this.first_name = first_name;
-        this.last_name = last_name;
-        this.email = email;
-        this.phone = phone;
-        this.password = password;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
         this.role = role;
     }
 
@@ -114,22 +90,6 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public LocalDateTime getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
-    }
-
-    public LocalDateTime getUpdated_at() {
-        return updated_at;
-    }
-
-    public void setUpdated_at(LocalDateTime updated_at) {
-        this.updated_at = updated_at;
     }
 
     public Role getRole() {
