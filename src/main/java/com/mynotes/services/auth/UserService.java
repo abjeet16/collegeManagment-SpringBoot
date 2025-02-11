@@ -1,16 +1,12 @@
 package com.mynotes.services.auth;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.mynotes.models.*;
 import com.mynotes.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class UserService {
@@ -61,45 +57,10 @@ public class UserService {
         }
         studentDetails.setClassEntity(classEntity);
         studentDetailsRepository.save(studentDetails);
-        addStudentToFireBase(studentDetails);
+
+        // Remove Firebase logic
+
         return result;
-    }
-
-    private void addStudentToFireBase(StudentDetails studentDetails) {
-        try {
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-
-            // Validate StudentDetails fields
-            if (studentDetails == null || studentDetails.getClassEntity().getCourse() == null || studentDetails.getUser() == null) {
-                throw new IllegalArgumentException("Invalid student details. Cannot proceed.");
-            }
-
-            String courseName = studentDetails.getClassEntity().getCourse().getCourseName();
-            String section = studentDetails.getClassEntity().getSection();
-            String batchYear = String.valueOf(studentDetails.getClassEntity().getBatchYear());
-            User user = studentDetails.getUser();
-            String userId = user.getUucms_id();
-            String name = user.getFirst_name() + " " + user.getLast_name();
-
-            if (courseName == null || section == null || userId == null || name == null) {
-                throw new IllegalArgumentException("Incomplete student details. Cannot proceed.");
-            }
-
-            String classKey = courseName + "_" + section + "_" + batchYear;
-
-            DatabaseReference studentRef = databaseReference.child(classKey).child(userId);
-
-            Map<String, Object> studentData = new HashMap<>();
-            studentData.put("name", name);
-            studentData.put("attendance", new HashMap<>());
-
-            studentRef.setValueAsync(studentData);
-
-            System.out.println("Student data saved successfully under: " + classKey + "/" + userId);
-        } catch (Exception e) {
-            System.err.println("Error saving student to Firebase: " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 
     @Transactional
@@ -127,3 +88,4 @@ public class UserService {
         return userRepository.getPasswordByEmail(email);
     }
 }
+
