@@ -284,13 +284,13 @@ public class AuthController {
                         // Hash the password for secure storage.
                         String hashedPassword = passwordEncoder.encode(password);
 
-                        User user = new User(userName, firstName, lastName, email, Long.parseLong(phone), hashedPassword, Role.ADMIN);
+                        User user = new User(userName, firstName, lastName, email, Long.parseLong(phone), hashedPassword, Role.TEACHER);
                         TeacherDetails teacherDetails = new TeacherDetails();
                         teacherDetails.setUser(user);
                         teacherDetails.setDepartment(department);
 
                         // Attempt to register the user. Convert the role to uppercase to match the database format.
-                        int result = userService.addTeacherUsers(userName, firstName, lastName, email, hashedPassword,Role.ADMIN.toString(),phone,teacherDetails);
+                        int result = userService.addTeacherUsers(userName, firstName, lastName, email, hashedPassword,Role.TEACHER.toString(),phone,teacherDetails);
 
                         // Check if the registration was successful.
                         if (result == 1) {
