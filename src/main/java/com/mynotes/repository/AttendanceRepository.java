@@ -31,11 +31,13 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     @Query("SELECT COUNT(a) FROM Attendance a WHERE a.studentId = :studentId AND a.status = 'ABSENT'")
     Long countAbsentByStudentId(@Param("studentId") String studentId);
 
-    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.studentId = :studentId AND a.subjectId = :subjectId AND a.classId = :classId AND a.status = :status")
-    long countByStudentAndSubjectAndClassAndStatus(String studentId, Long subjectId, Long classId, AttendanceStatus status);
-
-    long countByStudentIdAndSubjectIdAndClassId(String studentId, Long subjectId, Long classId);
-
     List<Attendance> findBySubjectIdAndStudentIdAndStatus(long subjectId, String studentId, AttendanceStatus attendanceStatus);
+
+
+    @Query("SELECT a.subjectId, COUNT(a), SUM(CASE WHEN a.status = 'PRESENT' THEN 1 ELSE 0 END) " +
+            "FROM Attendance a WHERE a.studentId = :studentId AND a.classId = :classId " +
+            "GROUP BY a.subjectId")
+    List<Object[]> findAttendanceSummaryByStudent(@Param("studentId") String studentId,
+                                                  @Param("classId") Long classId);
 }
 
