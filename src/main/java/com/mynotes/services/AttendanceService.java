@@ -1,6 +1,7 @@
 package com.mynotes.services;
 
 import com.mynotes.dto.responses.AttendanceResponseDTO;
+import com.mynotes.dto.responses.SubjectAndDateDTO;
 import com.mynotes.dto.responses.SubjectAttendanceDTO;
 import com.mynotes.enums.AttendanceStatus;
 import com.mynotes.models.Attendance;
@@ -9,6 +10,8 @@ import com.mynotes.models.Subject;
 import com.mynotes.repository.AttendanceRepository;
 import com.mynotes.repository.StudentDetailsRepository;
 import com.mynotes.repository.SubjectRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,9 @@ public class AttendanceService {
 
     @Autowired
     private AttendanceRepository attendanceRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final SubjectRepository subjectRepository;
 
@@ -110,12 +116,26 @@ public class AttendanceService {
         return attendanceResponseDTO;
     }
 
-    public List<Attendance> getSubjectAbsent(String subjectId, String userId) {
-        return attendanceRepository.findBySubjectIdAndStudentIdAndStatus(Long.parseLong(subjectId), userId, AttendanceStatus.ABSENT);
+    public List<SubjectAndDateDTO> getSubjectAbsent(String subjectId, String userId) {
+        return attendanceRepository.findAbsentRecords(Long.parseLong(subjectId), userId);
     }
 
-    public void saveAll(List<Attendance> attendanceList) {
-        attendanceRepository.saveAll(attendanceList);
+    @Transactional
+    public void saveAllBatch(List<Attendance> attendanceList) {
+        int batchSize = 50;  // Adjust batch size for best performance
+
+        for (int i = 0; i < attendanceList.size(); i++) {
+            entityManager.persist(attendanceList.get(i));
+
+            if (i > 0 && i % batchSize == 0) {
+                entityManager.flush();
+                entityManager.clear();
+            }
+        }
+
+        // Final flush to persist remaining data
+        entityManager.flush();
+        entityManager.clear();
     }
 }
 

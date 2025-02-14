@@ -63,6 +63,9 @@ public class TeacherController {
             @RequestParam int schedulePeriod,
             @RequestBody AttendanceRequest request) {
 
+        // Start timer
+        long startTime = System.currentTimeMillis();
+
         // Authenticate user
         MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -78,29 +81,35 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Attendance records cannot be empty");
         }
 
+        // Convert to list of Attendance entities in bulk
+        List<Attendance> attendanceList = new ArrayList<>(attendanceRecords.size());
+
+        for (AddAttendance record : attendanceRecords) {
+            Attendance attendance = new Attendance();
+            attendance.setStudentId(record.getStudentId());
+            attendance.setTeacherId(user.getUserId());
+            attendance.setClassId(classId);
+            attendance.setSubjectId(subjectId);
+            attendance.setSchedulePeriod(schedulePeriod);
+            attendance.setAttendanceDate(LocalDate.now());
+            attendance.setStatus(Boolean.TRUE.equals(record.getIsPresent())
+                    ? AttendanceStatus.PRESENT
+                    : AttendanceStatus.ABSENT);
+            attendanceList.add(attendance);
+        }
+
         try {
-            // Convert to list of Attendance entities
-            List<Attendance> attendanceList = attendanceRecords.stream().map(record -> {
-                Attendance attendance = new Attendance();
-                attendance.setStudentId(record.getStudentId());
-                attendance.setTeacherId(user.getUserId());
-                attendance.setClassId(classId);
-                attendance.setSubjectId(subjectId);
-                attendance.setSchedulePeriod(schedulePeriod);
-                attendance.setAttendanceDate(LocalDate.now());
+            // **Use batch insert for better performance**
+            attendanceService.saveAllBatch(attendanceList);
 
-                // Set attendance status
-                attendance.setStatus(Boolean.TRUE.equals(record.getIsPresent())
-                        ? AttendanceStatus.PRESENT
-                        : AttendanceStatus.ABSENT);
+            // End timer
+            long endTime = System.currentTimeMillis();
+            long executionTime = endTime - startTime;
 
-                return attendance;
-            }).collect(Collectors.toList());
+            // Print execution time
+            System.out.println("Execution Time: " + executionTime + " ms");
 
-            // Save all attendance records at once
-            attendanceService.saveAll(attendanceList);
-
-            return ResponseEntity.ok("Attendance marked successfully!");
+            return ResponseEntity.ok("Attendance marked successfully! Execution Time: " + executionTime + " ms");
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
