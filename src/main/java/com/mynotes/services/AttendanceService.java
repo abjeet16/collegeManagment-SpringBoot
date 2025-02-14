@@ -51,19 +51,9 @@ public class AttendanceService {
         return attendanceRepository.getSummaryBySubjectAndClass(subjectId, classId);
     }
 
-    public Long getPresentCountByStudentId(String studentId) {
-        return attendanceRepository.countPresentByStudentId(studentId);
-    }
-
-    public Long getAbsentCountByStudentId(String studentId) {
-        return attendanceRepository.countAbsentByStudentId(studentId);
-    }
-
-    public Integer getTotalAttendencePercentage(String studentId) {
-        Long presentCount = getPresentCountByStudentId(studentId);
-        Long totalCount = presentCount + getAbsentCountByStudentId(studentId);
-        if (totalCount == 0) return 0;
-        return Math.toIntExact((presentCount * 100) / totalCount);
+    public Integer getTotalAttendancePercentage(String studentId) {
+        Integer percentage = attendanceRepository.getAttendancePercentageByStudentId(studentId);
+        return percentage != null ? percentage : 0;
     }
 
     @Transactional
@@ -114,7 +104,7 @@ public class AttendanceService {
 
         // Create the final response
         AttendanceResponseDTO attendanceResponseDTO = new AttendanceResponseDTO();
-        attendanceResponseDTO.setPercentageCount(getTotalAttendencePercentage(studentId));
+        attendanceResponseDTO.setPercentageCount(getTotalAttendancePercentage(studentId));
         attendanceResponseDTO.setSubjectAttendances(new ArrayList<>(attendanceMap.values()));
 
         return attendanceResponseDTO;
@@ -122,6 +112,10 @@ public class AttendanceService {
 
     public List<Attendance> getSubjectAbsent(String subjectId, String userId) {
         return attendanceRepository.findBySubjectIdAndStudentIdAndStatus(Long.parseLong(subjectId), userId, AttendanceStatus.ABSENT);
+    }
+
+    public void saveAll(List<Attendance> attendanceList) {
+        attendanceRepository.saveAll(attendanceList);
     }
 }
 

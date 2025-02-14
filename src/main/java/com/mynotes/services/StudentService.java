@@ -15,10 +15,10 @@ public class StudentService {
     private final StudentDetailsRepository studentRepository;
 
     public List<AllStudentsOfAClass> getStudentsOfAClass(int classId) {
-        List<StudentDetails> studentDetails = studentRepository.findByClassEntityId(classId);
+        List<AllStudentsOfAClass> studentDetails = studentRepository.findByClassEntityIdo(classId);
         if (studentDetails.isEmpty()) {
             throw new IllegalArgumentException("No students found for class ID: " + classId);
         }
-        return studentDetails.stream().map(student -> new AllStudentsOfAClass(student.getStudentName(),student.getUser().getUucms_id())).toList();
+        return studentDetails;
     }
 }

@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -78,8 +79,8 @@ public class TeacherController {
         }
 
         try {
-            // Process attendance records
-            for (AddAttendance record : attendanceRecords) {
+            // Convert to list of Attendance entities
+            List<Attendance> attendanceList = attendanceRecords.stream().map(record -> {
                 Attendance attendance = new Attendance();
                 attendance.setStudentId(record.getStudentId());
                 attendance.setTeacherId(user.getUserId());
@@ -93,8 +94,11 @@ public class TeacherController {
                         ? AttendanceStatus.PRESENT
                         : AttendanceStatus.ABSENT);
 
-                attendanceService.saveAttendance(attendance); // Save attendance record
-            }
+                return attendance;
+            }).collect(Collectors.toList());
+
+            // Save all attendance records at once
+            attendanceService.saveAll(attendanceList);
 
             return ResponseEntity.ok("Attendance marked successfully!");
 
@@ -102,7 +106,7 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to mark attendance due to an internal error.");
         }
-    }//bjbjb
+    }
 
     @GetMapping("/{classId}/students")
     public ResponseEntity<List<AllStudentsOfAClass>> getStudentsOfAClass(@PathVariable int classId) {

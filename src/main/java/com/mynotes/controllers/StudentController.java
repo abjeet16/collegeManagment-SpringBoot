@@ -30,7 +30,7 @@ public class StudentController {
         if (user == null) {
             return ResponseEntity.status(401).body(null);
         }
-        int totalAttendences = attendanceService.getTotalAttendencePercentage(user.getUserId());
+        int totalAttendences = attendanceService.getTotalAttendancePercentage(user.getUserId());
         return ResponseEntity.ok(totalAttendences);
     }
 
@@ -52,6 +52,7 @@ public class StudentController {
         if (user == null) {
             return ResponseEntity.status(401).body(null);
         }
+        System.out.println(subjectId);
         List<Attendance> attendances = attendanceService.getSubjectAbsent(subjectId, user.getUserId());
 
         List<SubjectAndDateDTO> absentStudents = attendances.stream().map(attendance -> new SubjectAndDateDTO(attendance.getSchedulePeriod(), attendance.getAttendanceDate())).toList();

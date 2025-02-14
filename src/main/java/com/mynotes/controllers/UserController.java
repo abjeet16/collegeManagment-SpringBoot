@@ -50,7 +50,7 @@ public class UserController {
             return ResponseEntity.status(401).body(null);
         }
 
-        int totalAttendences = attendanceService.getTotalAttendencePercentage(user.getUserId());
+        int totalAttendences = attendanceService.getTotalAttendancePercentage(user.getUserId());
         return ResponseEntity.ok(totalAttendences);
     }
 }

@@ -23,13 +23,9 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     @Query("SELECT a.status, COUNT(a) FROM Attendance a WHERE a.subjectId = :subjectId AND a.classId = :classId GROUP BY a.status")
     List<Object[]> getSummaryBySubjectAndClass(Long subjectId, Long classId);
 
-    // Get attendance count for present days by student ID
-    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.studentId = :studentId AND a.status = 'PRESENT'")
-    Long countPresentByStudentId(@Param("studentId") String studentId);
-
-    // Get attendance count for absent days by student ID
-    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.studentId = :studentId AND a.status = 'ABSENT'")
-    Long countAbsentByStudentId(@Param("studentId") String studentId);
+    @Query("SELECT (SUM(CASE WHEN a.status = 'PRESENT' THEN 1 ELSE 0 END) * 100) / COUNT(a) " +
+            "FROM Attendance a WHERE a.studentId = :studentId")
+    Integer getAttendancePercentageByStudentId(@Param("studentId") String studentId);
 
     List<Attendance> findBySubjectIdAndStudentIdAndStatus(long subjectId, String studentId, AttendanceStatus attendanceStatus);
 
