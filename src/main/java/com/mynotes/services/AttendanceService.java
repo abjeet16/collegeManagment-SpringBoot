@@ -113,7 +113,7 @@ public class AttendanceService {
         attendanceResponseDTO.setPercentageCount(getTotalAttendancePercentage(studentId));
         attendanceResponseDTO.setSubjectAttendances(new ArrayList<>(attendanceMap.values()));
 
-        return attendanceResponseDTO;
+        return attendanceResponseDTO;//
     }
 
     public List<SubjectAndDateDTO> getSubjectAbsent(String subjectId, String userId) {
