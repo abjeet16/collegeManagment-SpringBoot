@@ -87,7 +87,6 @@ public class TeacherController {
         for (AddAttendance record : attendanceRecords) {
             Attendance attendance = new Attendance();
             attendance.setStudentId(record.getStudentId());
-            attendance.setTeacherId(user.getUserId());
             attendance.setClassId(classId);
             attendance.setSubjectId(subjectId);
             attendance.setSchedulePeriod(schedulePeriod);

@@ -24,9 +24,6 @@ public class Attendance {
     @Column(name = "subject_id", nullable = false)
     private Long subjectId;
 
-    @Column(name = "teacher_id", nullable = false)
-    private String teacherId;
-
     @Column(name = "attendance_date", nullable = false)
     private LocalDate attendanceDate;
 
