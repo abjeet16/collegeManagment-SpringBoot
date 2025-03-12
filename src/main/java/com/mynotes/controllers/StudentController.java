@@ -55,5 +55,5 @@ public class StudentController {
 
         List<SubjectAndDateDTO> absentStudents = attendanceService.getSubjectAbsent(subjectId, user.getUserId());
         return ResponseEntity.ok(absentStudents);
-    }
+    }//
 }
