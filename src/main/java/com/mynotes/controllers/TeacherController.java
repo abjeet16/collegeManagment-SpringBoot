@@ -9,10 +9,12 @@ import com.mynotes.models.AssignedTeacher;
 import com.mynotes.models.Attendance;
 import com.mynotes.models.ClassEntity;
 import com.mynotes.models.StudentDetails;
+import com.mynotes.models.views.StudentAttendanceSummary;
 import com.mynotes.services.AssignedTeacherService;
 import com.mynotes.services.AttendanceService;
 import com.mynotes.services.StudentService;
 import com.mynotes.services.auth.MyCustomUserDetails;
+import com.mynotes.services.viewServices.StudentAttendanceSummaryService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,7 @@ public class TeacherController {
     private final AssignedTeacherService assignedTeacherService;
     private final AttendanceService attendanceService;
     private final StudentService studentService;
+    private final StudentAttendanceSummaryService studentAttendanceSummaryService;
 
     @GetMapping("/my_classes")
     public ResponseEntity<List<ClassWithSubjectDto>> getMyClasses() {
@@ -120,6 +123,14 @@ public class TeacherController {
     public ResponseEntity<List<AllStudentsOfAClass>> getStudentsOfAClass(@PathVariable int classId) {
         List<AllStudentsOfAClass> students = studentService.getStudentsOfAClass(classId);
         return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("attendance/{classId}/{subjectId}/{studentId}")
+    public List<StudentAttendanceSummary> getSummary(
+            @PathVariable Long classId,
+            @PathVariable Long subjectId,
+            @PathVariable String studentId) {
+        return studentAttendanceSummaryService.getAttendanceSummary(classId, subjectId, studentId);
     }
 }
 
