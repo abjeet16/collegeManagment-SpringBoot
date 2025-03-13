@@ -6,5 +6,5 @@ public enum Department {
     MCA,
     MBA,
     BA,
-    Bcom
+    Bcom,
 }
