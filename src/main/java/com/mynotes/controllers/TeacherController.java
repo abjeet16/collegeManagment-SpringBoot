@@ -4,6 +4,7 @@ import com.mynotes.dto.requests.AddAttendance;
 import com.mynotes.dto.requests.AttendanceRequest;
 import com.mynotes.dto.responses.AllStudentsOfAClass;
 import com.mynotes.dto.responses.ClassWithSubjectDto;
+import com.mynotes.dto.responses.studentsAttendenceSummuryDTO;
 import com.mynotes.enums.AttendanceStatus;
 import com.mynotes.models.AssignedTeacher;
 import com.mynotes.models.Attendance;
@@ -125,12 +126,11 @@ public class TeacherController {
         return ResponseEntity.ok(students);
     }
 
-    @GetMapping("attendance/{classId}/{subjectId}/{studentId}")
-    public List<StudentAttendanceSummary> getSummary(
+    @GetMapping("attendance/{classId}/{subjectId}")
+    public List<studentsAttendenceSummuryDTO> getSummary(
             @PathVariable Long classId,
-            @PathVariable Long subjectId,
-            @PathVariable String studentId) {
-        return studentAttendanceSummaryService.getAttendanceSummary(classId, subjectId, studentId);
+            @PathVariable Long subjectId) {
+        return studentAttendanceSummaryService.getAttendanceSummary(classId, subjectId);
     }
 }
 

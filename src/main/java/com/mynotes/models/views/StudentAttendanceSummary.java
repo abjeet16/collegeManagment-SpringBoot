@@ -4,10 +4,11 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "student_attendance_summary")  // Match the view name
+@Table(name = "student_attendance_summary")
 @Data
 public class StudentAttendanceSummary {
 
+    @Id  // Assuming student_id is unique in the view
     @Column(name = "student_id")
     private String studentId;
 
@@ -17,6 +18,9 @@ public class StudentAttendanceSummary {
     @Column(name = "subject_id")
     private Long subjectId;
 
+    @Column(name = "name")  // Concatenated first_name + last_name
+    private String name;
+
     @Column(name = "total_present")
     private Long totalPresent;
 
@@ -25,5 +29,11 @@ public class StudentAttendanceSummary {
 
     @Column(name = "total_classes")
     private Long totalClasses;
+
+    @Column(name = "attendance_percentage")
+    private Double attendancePercentage;  // Stores percentage
 }
+
+
+
 
