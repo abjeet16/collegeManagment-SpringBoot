@@ -7,6 +7,8 @@ import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CourseService {
 
@@ -15,5 +17,9 @@ public class CourseService {
 
     public void addCourse(Courses course) {
         courseRepository.save(course);
+    }
+
+    public List<Courses> getAllCourses() {
+        return courseRepository.findAll();
     }
 }
