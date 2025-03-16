@@ -1,6 +1,7 @@
 package com.mynotes.services;
 
 import com.mynotes.dto.requests.AddClassReqDTO;
+import com.mynotes.dto.responses.ClassesDTO;
 import com.mynotes.models.ClassEntity;
 import com.mynotes.models.Courses;
 import com.mynotes.repository.ClassRepository;
@@ -32,7 +33,7 @@ public class ClassService {
         classRepository.save(classEntity);
     }
 
-    public List<ClassEntity> getClassesByCourseId(int courseId) {
+    public List<ClassesDTO> getClassesByCourseId(int courseId) {
         return classRepository.getClassesByCourseId(courseId);
     }
 }
