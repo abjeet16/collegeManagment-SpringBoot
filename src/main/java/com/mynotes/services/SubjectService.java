@@ -1,12 +1,15 @@
 package com.mynotes.services;
 
 import com.mynotes.dto.requests.AddSubjectReqDTO;
+import com.mynotes.dto.responses.SubjectDTO;
 import com.mynotes.models.Courses;
 import com.mynotes.models.Subject;
 import com.mynotes.repository.CourseRepository;
 import com.mynotes.repository.SubjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,5 +26,9 @@ public class SubjectService {
         Courses courses = courseRepository.findByCourseName(addSubjectReqDTO.getCourse().toUpperCase());
         subjects.setCourses(courses);
         subjectsRepository.save(subjects);
+    }
+
+    public List<SubjectDTO> getSubjectsByCourseId(int courseId) {
+        return subjectsRepository.findSubjectsByCourseId(courseId);
     }
 }

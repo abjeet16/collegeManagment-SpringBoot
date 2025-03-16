@@ -4,6 +4,7 @@ import com.mynotes.dto.requests.AddClassReqDTO;
 import com.mynotes.dto.requests.AddCourseReqDTO;
 import com.mynotes.dto.requests.AddSubjectReqDTO;
 import com.mynotes.dto.requests.AssignTeacherDTO;
+import com.mynotes.dto.responses.SubjectDTO;
 import com.mynotes.models.ClassEntity;
 import com.mynotes.models.Courses;
 import com.mynotes.services.AssignedTeacherService;
@@ -114,5 +115,11 @@ public class AdminController {
     public ResponseEntity<List<ClassEntity>> getClassesByCourseId(@PathVariable int courseId) {
         List<ClassEntity> classes = classService.getClassesByCourseId(courseId);
         return ResponseEntity.ok(classes);
+    }
+
+    @GetMapping("/course/{courseId}/subjects")
+    public ResponseEntity<List<SubjectDTO>> getSubjectsByCourseId(@PathVariable int courseId) {
+        List<SubjectDTO> subjects = subjectService.getSubjectsByCourseId(courseId);
+        return ResponseEntity.ok(subjects);
     }
 }
