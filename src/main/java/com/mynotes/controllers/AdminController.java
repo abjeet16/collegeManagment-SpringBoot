@@ -4,13 +4,12 @@ import com.mynotes.dto.requests.AddClassReqDTO;
 import com.mynotes.dto.requests.AddCourseReqDTO;
 import com.mynotes.dto.requests.AddSubjectReqDTO;
 import com.mynotes.dto.requests.AssignTeacherDTO;
+import com.mynotes.dto.responses.AllStudentsOfAClass;
 import com.mynotes.dto.responses.SubjectDTO;
 import com.mynotes.models.ClassEntity;
 import com.mynotes.models.Courses;
-import com.mynotes.services.AssignedTeacherService;
-import com.mynotes.services.ClassService;
-import com.mynotes.services.CourseService;
-import com.mynotes.services.SubjectService;
+import com.mynotes.models.StudentDetails;
+import com.mynotes.services.*;
 import com.mynotes.services.auth.MyCustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +34,8 @@ public class AdminController {
     private final SubjectService subjectService;
 
     private final ClassService classService;
+
+    private final StudentService studentService;
 
     private final AssignedTeacherService assignedTeacherService;
 
@@ -121,5 +122,11 @@ public class AdminController {
     public ResponseEntity<List<SubjectDTO>> getSubjectsByCourseId(@PathVariable int courseId) {
         List<SubjectDTO> subjects = subjectService.getSubjectsByCourseId(courseId);
         return ResponseEntity.ok(subjects);
+    }
+
+    @GetMapping("/class/{classId}/students")
+    public ResponseEntity<List<AllStudentsOfAClass>> getStudentsOfAClass(@PathVariable int classId) {
+        List<AllStudentsOfAClass> students = studentService.getStudentsOfAClass(classId);
+        return ResponseEntity.ok(students);
     }
 }
