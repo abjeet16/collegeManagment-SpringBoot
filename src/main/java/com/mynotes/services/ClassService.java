@@ -1,13 +1,11 @@
 package com.mynotes.services;
 
 import com.mynotes.dto.requests.AddClassReqDTO;
-import com.mynotes.dto.responses.ClassesDTO;
 import com.mynotes.models.ClassEntity;
 import com.mynotes.models.Courses;
 import com.mynotes.repository.ClassRepository;
 import com.mynotes.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,7 +31,7 @@ public class ClassService {
         classRepository.save(classEntity);
     }
 
-    public List<ClassesDTO> getClassesByCourseId(int courseId) {
+    public List<ClassEntity> getClassesByCourseId(int courseId) {
         return classRepository.getClassesByCourseId(courseId);
     }
 }
