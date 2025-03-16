@@ -5,7 +5,11 @@ import com.mynotes.models.Courses;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ClassRepository extends JpaRepository<ClassEntity, Integer> {
     ClassEntity findBySectionAndBatchYearAndCourse(String section, int batchYear, Courses course);
+
+    List<ClassEntity> getClassesByCourseId(int courseId);
 }
