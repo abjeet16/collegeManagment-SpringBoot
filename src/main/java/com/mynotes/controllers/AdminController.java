@@ -9,10 +9,13 @@ import com.mynotes.services.AssignedTeacherService;
 import com.mynotes.services.ClassService;
 import com.mynotes.services.CourseService;
 import com.mynotes.services.SubjectService;
+import com.mynotes.services.auth.MyCustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +27,8 @@ public class AdminController {
 
     @Autowired
     private CourseService courseService;
+
+    private final PasswordEncoder passwordEncoder;
 
     private final SubjectService subjectService;
 
@@ -82,4 +87,26 @@ public class AdminController {
         List<Courses> courses = courseService.getAllCourses();
         return ResponseEntity.ok(courses);
     }
+
+    @DeleteMapping("/deleteCourse/{courseId}")
+    public ResponseEntity<String> deleteCourse(@PathVariable int courseId, @RequestParam String password) {
+        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+
+        // Verify the password instead of decoding
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+        }
+
+        try {
+            courseService.deleteCourse(courseId);
+            return ResponseEntity.ok("Course deleted successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
+    }
+
 }

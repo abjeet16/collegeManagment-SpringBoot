@@ -22,4 +22,8 @@ public class CourseService {
     public List<Courses> getAllCourses() {
         return courseRepository.findAll();
     }
+
+    public void deleteCourse(int courseId) {
+        courseRepository.deleteById(courseId);
+    }
 }
