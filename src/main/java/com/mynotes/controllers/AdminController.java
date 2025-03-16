@@ -124,9 +124,9 @@ public class AdminController {
         return ResponseEntity.ok(subjects);
     }
 
-    @GetMapping("/class/{classId}/students")
+    /*@GetMapping("/class/{classId}/students")
     public ResponseEntity<List<AllStudentsOfAClass>> getStudentsOfAClass(@PathVariable int classId) {
         List<AllStudentsOfAClass> students = studentService.getStudentsOfAClass(classId);
         return ResponseEntity.ok(students);
-    }
+    }*/
 }
