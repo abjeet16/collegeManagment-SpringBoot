@@ -88,15 +88,25 @@ public class AdminController {
         }
     }
 
-    /*@PutMapping("/assignTeacher")
-    public ResponseEntity<String> updateTeacher(@RequestBody AssignTeacherDTO assignTeacherDTO) {
+    @PutMapping("/assignTeacher")
+    public ResponseEntity<String> updateTeacher(@RequestBody AssignTeacherDTO assignTeacherDTO , @RequestParam String password) {
+        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+
+        // Verify the password instead of decoding
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+        }
         try {
             assignedTeacherService.updateTeacher(assignTeacherDTO);
             return ResponseEntity.ok("Teacher updated successfully!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
-    }*/
+    }
 
     @GetMapping("/courses")
     public ResponseEntity<List<Courses>> getAllCourses() {
