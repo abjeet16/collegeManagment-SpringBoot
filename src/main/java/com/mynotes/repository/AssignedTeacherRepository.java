@@ -21,7 +21,7 @@ public interface AssignedTeacherRepository extends JpaRepository<AssignedTeacher
     @Transactional
     @Query("UPDATE AssignedTeacher at " +
             "SET at.teacher = (SELECT t FROM TeacherDetails t WHERE t.user.Uucms_id = :teacherUucmsId) " +
-            "WHERE at.classEntity.id = :classId AND at.subject.subjectId = :subjectId")
+            "WHERE at.classEntity.id = :classId AND at.subject.id = (SELECT s.id FROM Subject s WHERE s.subjectId = :subjectId)") // ✅ Fetch id dynamically
     void updateTeacher(@Param("teacherUucmsId") String teacherUucmsId,
                        @Param("classId") int classId,
                        @Param("subjectId") String subjectId);
