@@ -1,5 +1,8 @@
 package com.mynotes.services.auth;
 
+import com.mynotes.dto.responses.AllTeachersDTO;
+import com.mynotes.dto.responses.TeacherDetailResponse;
+import com.mynotes.enums.Role;
 import com.mynotes.models.*;
 import com.mynotes.repository.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,6 +89,14 @@ public class UserService {
 
     public String getPasswordByEmail(String email) {
         return userRepository.getPasswordByEmail(email);
+    }
+
+    public List<AllTeachersDTO> getAllTeachers() {
+        return teacherDetailsRepository.findAllTeachers();
+    }
+
+    public TeacherDetailResponse getTeacherById(String teacherId) {
+        return teacherDetailsRepository.getTeacherDetailsByUucmsId(teacherId);
     }
 }
 

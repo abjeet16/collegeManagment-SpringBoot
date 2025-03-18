@@ -1,8 +1,10 @@
 package com.mynotes.services;
 
 import com.mynotes.dto.responses.AttendanceResponseDTO;
+import com.mynotes.dto.responses.StudentsSubjectAttendance;
 import com.mynotes.dto.responses.SubjectAndDateDTO;
 import com.mynotes.dto.responses.SubjectAttendanceDTO;
+import com.mynotes.enums.AttendanceStatus;
 import com.mynotes.models.Attendance;
 import com.mynotes.models.StudentDetails;
 import com.mynotes.models.Subject;
@@ -154,6 +156,20 @@ public class AttendanceService {
         // Final flush to ensure all records are saved
         entityManager.flush();
         entityManager.clear();
+    }
+
+    public List<StudentsSubjectAttendance> getStudentAttendence(String studentId, String subjectId) {
+        return attendanceRepository.findBySubjectIdAndStudentId(Long.parseLong(subjectId), studentId);
+    }
+
+    public String updateAttendance(String studentId, String subjectId, LocalDate date, boolean status) {
+        Attendance attendance = attendanceRepository.findBySubjectIdAndStudentIdAndAttendanceDate(Long.parseLong(subjectId), studentId, date);
+        if (attendance == null) {
+            throw new IllegalArgumentException("Attendance record not found for student: " + studentId + ", subject: " + subjectId + ", date: " + date);
+        }
+        attendance.setStatus(status ? AttendanceStatus.PRESENT : AttendanceStatus.ABSENT);
+        attendanceRepository.save(attendance);
+        return "Attendance updated successfully";
     }
 }
 

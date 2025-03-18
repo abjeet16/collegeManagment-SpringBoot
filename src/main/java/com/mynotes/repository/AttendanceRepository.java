@@ -1,6 +1,7 @@
 package com.mynotes.repository;
 
 import com.mynotes.dto.responses.AttendanceResponseDTO;
+import com.mynotes.dto.responses.StudentsSubjectAttendance;
 import com.mynotes.dto.responses.SubjectAndDateDTO;
 import com.mynotes.enums.AttendanceStatus;
 import com.mynotes.models.Attendance;
@@ -40,5 +41,16 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     @Query("SELECT new com.mynotes.dto.responses.SubjectAndDateDTO(a.schedulePeriod, a.attendanceDate) " +
             "FROM Attendance a WHERE a.subjectId = :subjectId AND a.studentId = :userId AND a.status = 'ABSENT'")
     List<SubjectAndDateDTO> findAbsentRecords(@Param("subjectId") Long subjectId, @Param("userId") String userId);
+
+    @Query("SELECT new com.mynotes.dto.responses.StudentsSubjectAttendance(a.id, a.attendanceDate, a.status,a.schedulePeriod) " +
+            "FROM Attendance a " +
+            "WHERE a.subjectId = :subjectId AND a.studentId = :studentId")
+    List<StudentsSubjectAttendance> findBySubjectIdAndStudentId(
+            @Param("subjectId") Long subjectId,
+            @Param("studentId") String studentId
+    );
+
+    Attendance findBySubjectIdAndStudentIdAndAttendanceDate(long subjectId, String studentId, LocalDate date);
+
 }
 

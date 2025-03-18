@@ -19,6 +19,8 @@ public class SubjectService {
 
     private final CourseRepository courseRepository;
 
+    private final AssignedTeacherService assignedTeacherService;
+
     public void addSubject(AddSubjectReqDTO addSubjectReqDTO) {
         Subject subjects = new Subject();
         subjects.setSubjectId(addSubjectReqDTO.getSubjectId());
@@ -29,6 +31,10 @@ public class SubjectService {
     }
 
     public List<SubjectDTO> getSubjectsByCourseId(int courseId) {
-        return subjectsRepository.findSubjectsByCourseId(courseId);
+        List<SubjectDTO> subjects = subjectsRepository.findSubjectsByCourseId(courseId);
+        for(SubjectDTO subject : subjects) {
+            subject.setAssignedTeacher(assignedTeacherService.getAssignedTeacherBySubjectId(subject.getSubjectId()));
+        }
+        return subjects;
     }
 }

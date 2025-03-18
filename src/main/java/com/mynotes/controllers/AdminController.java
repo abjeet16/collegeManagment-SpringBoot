@@ -1,16 +1,14 @@
 package com.mynotes.controllers;
 
-import com.mynotes.dto.requests.AddClassReqDTO;
-import com.mynotes.dto.requests.AddCourseReqDTO;
-import com.mynotes.dto.requests.AddSubjectReqDTO;
-import com.mynotes.dto.requests.AssignTeacherDTO;
-import com.mynotes.dto.responses.AllStudentsOfAClass;
-import com.mynotes.dto.responses.SubjectDTO;
+import com.mynotes.dto.requests.*;
+import com.mynotes.dto.responses.*;
+import com.mynotes.models.Attendance;
 import com.mynotes.models.ClassEntity;
 import com.mynotes.models.Courses;
 import com.mynotes.models.StudentDetails;
 import com.mynotes.services.*;
 import com.mynotes.services.auth.MyCustomUserDetails;
+import com.mynotes.services.auth.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -31,9 +30,13 @@ public class AdminController {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final AttendanceService attendanceService;
+
     private final SubjectService subjectService;
 
     private final ClassService classService;
+
+    private final UserService userService;
 
     private final StudentService studentService;
 
@@ -85,6 +88,16 @@ public class AdminController {
         }
     }
 
+    /*@PutMapping("/assignTeacher")
+    public ResponseEntity<String> updateTeacher(@RequestBody AssignTeacherDTO assignTeacherDTO) {
+        try {
+            assignedTeacherService.updateTeacher(assignTeacherDTO);
+            return ResponseEntity.ok("Teacher updated successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
+    }*/
+
     @GetMapping("/courses")
     public ResponseEntity<List<Courses>> getAllCourses() {
         List<Courses> courses = courseService.getAllCourses();
@@ -124,9 +137,38 @@ public class AdminController {
         return ResponseEntity.ok(subjects);
     }
 
-    /*@GetMapping("/class/{classId}/students")
+    @GetMapping("/class/{classId}/students")
     public ResponseEntity<List<AllStudentsOfAClass>> getStudentsOfAClass(@PathVariable int classId) {
         List<AllStudentsOfAClass> students = studentService.getStudentsOfAClass(classId);
         return ResponseEntity.ok(students);
-    }*/
+    }
+
+    @GetMapping("/student/{studentId}")
+    public ResponseEntity<StudentDetailsResponse> getStudentById(@PathVariable String studentId) {
+        StudentDetailsResponse student = studentService.getStudentById(studentId);
+        return ResponseEntity.ok(student);
+    }
+
+    @GetMapping("/attendence")
+    public ResponseEntity<List<StudentsSubjectAttendance>> getStudentAttendence(@RequestParam String studentId , @RequestParam String subjectId) {
+        List<StudentsSubjectAttendance> student = attendanceService.getStudentAttendence(studentId,subjectId);
+        return ResponseEntity.ok(student);
+    }
+
+    @PutMapping("/updateAttendance")
+    public ResponseEntity<String> updateAttendance(@RequestBody AttendanceUpdateRequest request) {
+        return ResponseEntity.ok(attendanceService.updateAttendance(
+                request.getStudentId(), request.getSubjectId(), request.getDate(), request.isStatus()
+        ));
+    }
+
+    @GetMapping("/Teachers")
+    public ResponseEntity<List<AllTeachersDTO>> getAllTeachers() {
+        return ResponseEntity.ok(userService.getAllTeachers());
+    } // ResponseEntity<List<AllTeachersDTO>>
+
+    @GetMapping("/Teacher/{teacherId}/details")
+    public ResponseEntity<TeacherDetailResponse> getTeacherById(@PathVariable String teacherId) {
+        return ResponseEntity.ok(userService.getTeacherById(teacherId));
+    }
 }
