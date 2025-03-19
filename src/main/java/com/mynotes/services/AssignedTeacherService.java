@@ -62,8 +62,8 @@ public class AssignedTeacherService {
         }
     }
 
-    public String getAssignedTeacherBySubjectId(int subjectId) {
-        return assignedTeacherRepository.getAssignedTeacherFullNameBySubjectId(subjectId);
+    public String getAssignedTeacherBySubjectIdAndClassId(int subjectId,int classId) {
+        return assignedTeacherRepository.getAssignedTeacherFullNameBySubjectIdAndClassId(subjectId,classId);
     }
 
     public void updateTeacher(AssignTeacherDTO assignTeacherDTO) {

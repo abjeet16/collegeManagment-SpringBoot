@@ -141,9 +141,9 @@ public class AdminController {
         return ResponseEntity.ok(classes);
     }
 
-    @GetMapping("/course/{courseId}/subjects")
-    public ResponseEntity<List<SubjectDTO>> getSubjectsByCourseId(@PathVariable int courseId) {
-        List<SubjectDTO> subjects = subjectService.getSubjectsByCourseId(courseId);
+    @GetMapping("/course/{courseId}/class/{classId}/subjects")
+    public ResponseEntity<List<SubjectDTO>> getSubjectsByCourseId(@PathVariable int courseId,@PathVariable int classId) {
+        List<SubjectDTO> subjects = subjectService.getSubjectsByCourseId(courseId,classId);
         return ResponseEntity.ok(subjects);
     }
 

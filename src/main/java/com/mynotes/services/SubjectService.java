@@ -30,10 +30,14 @@ public class SubjectService {
         subjectsRepository.save(subjects);
     }
 
-    public List<SubjectDTO> getSubjectsByCourseId(int courseId) {
+    public List<SubjectDTO> getSubjectsByCourseId(int courseId,int classId) {
         List<SubjectDTO> subjects = subjectsRepository.findSubjectsByCourseId(courseId);
         for(SubjectDTO subject : subjects) {
-            subject.setAssignedTeacher(assignedTeacherService.getAssignedTeacherBySubjectId(subject.getSubjectId()));
+            if (classId == -1){
+                subject.setAssignedTeacher(null);
+            }else {
+                subject.setAssignedTeacher(assignedTeacherService.getAssignedTeacherBySubjectIdAndClassId(subject.getSubjectId(),classId));
+            }
         }
         return subjects;
     }
