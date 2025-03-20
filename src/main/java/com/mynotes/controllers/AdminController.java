@@ -181,7 +181,7 @@ public class AdminController {
         return ResponseEntity.ok(userService.getTeacherById(teacherId));
     }
 
-    @PostMapping("/addUser")
+    @PostMapping("/addAdmin")
     public ResponseEntity<String> addUser(@Valid @RequestBody addUserRequest request) {
 
         // Check if email already exists
@@ -192,14 +192,6 @@ public class AdminController {
         // Hash the password securely
         String hashedPassword = passwordEncoder.encode(request.getPassword());
 
-        // Validate role and convert it to an enum
-        Role userRole;
-        try {
-            userRole = Role.valueOf(request.getRole().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Invalid role specified.");
-        }
-
         // Store user in the database
         int result = userService.signUpUser(
                 request.getUserName(),
@@ -207,7 +199,7 @@ public class AdminController {
                 request.getLastName(),
                 request.getEmail(),
                 hashedPassword,
-                userRole.toString(),
+                Role.TEACHER.toString(),
                 request.getPhone()
         );
 

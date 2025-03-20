@@ -11,6 +11,7 @@
 	<groupId>com.mynotes</groupId>
 	<artifactId>my-notes</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>My Notes</name>
 	<description>My Notes Application</description>
 	<properties>

@@ -34,7 +34,5 @@ public class AddTeacherRequest {
 
     @NotBlank(message = "Department is required")
     private String department;
-
-    private Role role = Role.TEACHER; // Default role as TEACHER
 }
 
