@@ -1,7 +1,6 @@
 HELP.md
 # Ignore all target directories except JAR files
-target/
-!target/*.jar
+
 
 ### STS ###
 .apt_generated
