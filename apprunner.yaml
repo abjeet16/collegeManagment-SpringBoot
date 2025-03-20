@@ -1,9 +1,8 @@
 version: 1.0
-runtime: corretto8
+runtime: java
 build:
   commands:
     - ./mvnw clean package -DskipTests
 run:
-  command: java -jar target/my-notes-0.0.1-SNAPSHOT.jar
-  network:
-    port: 8080
+  command: java -jar target/*.jar
+
