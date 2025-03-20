@@ -1,0 +1,9 @@
+version: 1.0
+runtime: java17  # Change this to java11 if needed
+build:
+  buildCommand: mvn clean package
+  outputDir: target
+run:
+  command: java -jar target/*.jar
+  network:
+    port: 8080
