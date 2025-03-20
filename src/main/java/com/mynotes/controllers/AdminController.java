@@ -2,13 +2,12 @@ package com.mynotes.controllers;
 
 import com.mynotes.dto.requests.*;
 import com.mynotes.dto.responses.*;
-import com.mynotes.models.Attendance;
-import com.mynotes.models.ClassEntity;
-import com.mynotes.models.Courses;
-import com.mynotes.models.StudentDetails;
+import com.mynotes.enums.Role;
+import com.mynotes.models.*;
 import com.mynotes.services.*;
 import com.mynotes.services.auth.MyCustomUserDetails;
 import com.mynotes.services.auth.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -180,5 +179,80 @@ public class AdminController {
     @GetMapping("/Teacher/{teacherId}/details")
     public ResponseEntity<TeacherDetailResponse> getTeacherById(@PathVariable String teacherId) {
         return ResponseEntity.ok(userService.getTeacherById(teacherId));
+    }
+
+    @PostMapping("/addUser")
+    public ResponseEntity<String> addUser(@Valid @RequestBody addUserRequest request) {
+
+        // Check if email already exists
+        if (userService.doesWithEmailExist(request.getEmail())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Email is already registered.");
+        }
+
+        // Hash the password securely
+        String hashedPassword = passwordEncoder.encode(request.getPassword());
+
+        // Validate role and convert it to an enum
+        Role userRole;
+        try {
+            userRole = Role.valueOf(request.getRole().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Invalid role specified.");
+        }
+
+        // Store user in the database
+        int result = userService.signUpUser(
+                request.getUserName(),
+                request.getFirstName(),
+                request.getLastName(),
+                request.getEmail(),
+                hashedPassword,
+                userRole.toString(),
+                request.getPhone()
+        );
+
+        // Check if the user was successfully added
+        if (result != 1) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: User registration failed.");
+        }
+
+        // Return success response
+        return ResponseEntity.status(HttpStatus.CREATED).body("User Sign-Up Successful!");
+    }
+
+    @PostMapping("/addTeacher")
+    public ResponseEntity<String> addTeacher(@Valid @RequestBody AddTeacherRequest request) {
+        // Check if email already exists
+        if (userService.doesWithEmailExist(request.getEmail())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Email is already registered.");
+        }
+
+        // Hash the password securely
+        String hashedPassword = passwordEncoder.encode(request.getPassword());
+
+        User user = new User(request.getUserName(),request.getFirstName(),request.getLastName(),request.getEmail(),Long.parseLong(request.getPhone()), hashedPassword, Role.TEACHER);
+        TeacherDetails teacherDetails = new TeacherDetails();
+        teacherDetails.setUser(user);
+        teacherDetails.setDepartment(request.getDepartment());
+
+        // Store user in the database
+        int result = userService.addTeacherUsers(
+                request.getUserName(),
+                request.getFirstName(),
+                request.getLastName(),
+                request.getEmail(),
+                hashedPassword,
+                Role.TEACHER.toString(),
+                request.getPhone(),
+                teacherDetails
+        );
+
+        // Check if the user was successfully added
+        if (result != 1) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Teacher registration failed.");
+        }
+
+        // Return success response
+        return ResponseEntity.status(HttpStatus.CREATED).body("Teacher added successfully!");
     }
 }

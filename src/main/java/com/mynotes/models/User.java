@@ -26,7 +26,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.USER; // Default role set to USER
+    private Role role = Role.STUDENT; // Default role set to USER
 
     // New bidirectional relationship mapping
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
