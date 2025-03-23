@@ -12,10 +12,12 @@ public class SubjectDTO {
     private String subjectName;
     private String subjectCode;
     private String assignedTeacher;
+    private int semester;
 
-    public  SubjectDTO(int subjectId, String subjectName, String subjectCode) {
+    public  SubjectDTO(int subjectId, String subjectName, String subjectCode,int semester) {
         this.subjectId = subjectId;
         this.subjectName = subjectName;
         this.subjectCode = subjectCode;
+        this.semester = semester;
     }
 }

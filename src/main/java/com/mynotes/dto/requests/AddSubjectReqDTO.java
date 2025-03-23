@@ -11,4 +11,6 @@ public class AddSubjectReqDTO {
     private String subjectName;
 
     private String course;
+
+    private int semester;
 }

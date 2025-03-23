@@ -1,4 +1,4 @@
-package com.mynotes.dto;
+package com.mynotes.dto.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

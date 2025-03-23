@@ -2,6 +2,10 @@ package com.mynotes.controllers;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.mynotes.dto.requests.StudentRegistrationDTO;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -154,6 +158,14 @@ public class DemoController {
             workbook.write(fileOut);
         }
         workbook.close();
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BulkStudentRegistrationRequest {
+        private Long classEntityId;
+        private List<StudentRegistrationDTO> students;
     }
 }
 

@@ -16,6 +16,8 @@ public class Subject {
 
     private String subjectName;
 
+    private int semester;
+
     @ManyToOne // Assuming many subjects can be linked to one course
     @JoinColumn(name = "course_id") // The foreign key in the `Subject` table
     private Courses courses;

@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, Integer> {
@@ -48,5 +49,8 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 
     @Query(value = "SELECT * FROM users WHERE uucms_id = :uucmsId", nativeQuery = true)
     User getUserByUucmsId(@Param("uucmsId") String uucmsId);
+
+    @Query("SELECT u.email FROM User u")
+    Set<String> findAllEmails();
 }
 // END OF USER REPOSITORY INTERFACE.

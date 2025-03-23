@@ -1,21 +1,31 @@
 package com.mynotes.services.auth;
 
+import com.mynotes.dto.requests.StudentRegistrationDTO;
 import com.mynotes.dto.responses.AllTeachersDTO;
 import com.mynotes.dto.responses.TeacherDetailResponse;
 import com.mynotes.enums.Role;
 import com.mynotes.models.*;
 import com.mynotes.repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    // EntityManager is used for managing database transactions
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     private StudentDetailsRepository studentDetailsRepository;
@@ -97,6 +107,80 @@ public class UserService {
 
     public TeacherDetailResponse getTeacherById(String teacherId) {
         return teacherDetailsRepository.getTeacherDetailsByUucmsId(teacherId);
+    }
+
+    @Transactional
+    public Map<String, Object> saveAllStudentsInBatch(
+            List<StudentRegistrationDTO> dtos,
+            ClassEntity classEntity
+    ) {
+        int batchSize = 50;
+        int successCount = 0;
+        List<String> failedEntries = new ArrayList<>();
+
+        Set<String> existingEmails = userRepository.findAllEmails();
+
+        for (int i = 0; i < dtos.size(); i++) {
+            StudentRegistrationDTO dto = dtos.get(i);
+
+            try {
+                if (!isRowValid(dto)) {
+                    failedEntries.add("Invalid data at index: " + i);
+                    continue;
+                }
+
+                if (existingEmails.contains(dto.getEmail())) {
+                    failedEntries.add("Email already exists: " + dto.getEmail());
+                    continue;
+                }
+
+                User user = new User(
+                        dto.getUserName(),
+                        dto.getFirstName(),
+                        dto.getLastName(),
+                        dto.getEmail(),
+                        Long.parseLong(dto.getPhone()),
+                        dto.getPassword(),
+                        Role.STUDENT
+                );
+
+                entityManager.persist(user);
+
+                StudentDetails details = new StudentDetails();
+                details.setUser(user);
+                details.setClassEntity(classEntity); // 🔁 use reference here
+
+                entityManager.persist(details);
+
+                existingEmails.add(dto.getEmail());
+                successCount++;
+
+                if (i > 0 && i % batchSize == 0) {
+                    entityManager.flush();
+                    entityManager.clear();
+                }
+
+            } catch (Exception e) {
+                failedEntries.add("Error at index " + i + ": " + e.getMessage());
+            }
+        }
+
+        entityManager.flush();
+        entityManager.clear();
+
+        return Map.of(
+                "successCount", successCount,
+                "failedEntries", failedEntries
+        );
+    }
+
+    private boolean isRowValid(StudentRegistrationDTO dto) {
+        return dto.getUserName() != null &&
+                dto.getFirstName() != null &&
+                dto.getLastName() != null &&
+                dto.getEmail() != null && dto.getEmail().contains("@") &&
+                dto.getPassword() != null &&
+                dto.getPhone() != null && !dto.getPhone().isEmpty();
     }
 }
 

@@ -11,4 +11,6 @@ public class AddClassReqDTO {
     private int batchYear;
 
     private String section;
+
+    private int currentSemester;
 }

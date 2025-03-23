@@ -27,6 +27,9 @@ public class ClassEntity {
     @NotBlank(message = "Section is required")
     private String section; // For example: A, B, C
 
+    @NotNull(message = "Current semester is required")
+    private int currentSemester;
+
     public void setSection(@NotBlank(message = "Section is required") String section) {
         this.section = section.toUpperCase();
     }

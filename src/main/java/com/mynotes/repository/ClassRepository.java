@@ -14,4 +14,7 @@ public interface ClassRepository extends JpaRepository<ClassEntity, Integer> {
     ClassEntity findBySectionAndBatchYearAndCourse(String section, int batchYear, Courses course);
 
     List<ClassEntity> getClassesByCourseId(int courseId);
+
+    @Query("SELECT c.currentSemester FROM ClassEntity c WHERE c.id = :classId")
+    int getCurrentSemester(int classId);
 }

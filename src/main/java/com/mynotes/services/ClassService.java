@@ -22,6 +22,7 @@ public class ClassService {
         ClassEntity classEntity = new ClassEntity();
         classEntity.setBatchYear(addClassReqDTO.getBatchYear());
         classEntity.setSection(addClassReqDTO.getSection());
+        classEntity.setCurrentSemester(addClassReqDTO.getCurrentSemester());
 
         Courses course = courseRepository.findByCourseName(addClassReqDTO.getCourse().toUpperCase());
         if (course == null) {
@@ -33,5 +34,9 @@ public class ClassService {
 
     public List<ClassEntity> getClassesByCourseId(int courseId) {
         return classRepository.getClassesByCourseId(courseId);
+    }
+
+    public int getCurrentSemester(int classId) {
+        return classRepository.getCurrentSemester(classId);
     }
 }
