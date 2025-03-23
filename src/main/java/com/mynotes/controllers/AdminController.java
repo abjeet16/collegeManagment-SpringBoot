@@ -1,5 +1,7 @@
 package com.mynotes.controllers;
 
+import com.mynotes.dto.BulkStudentRegistrationRequest;
+import com.mynotes.dto.StudentRegistrationDTO;
 import com.mynotes.dto.requests.*;
 import com.mynotes.dto.responses.*;
 import com.mynotes.enums.Role;
@@ -17,7 +19,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -246,5 +251,83 @@ public class AdminController {
 
         // Return success response
         return ResponseEntity.status(HttpStatus.CREATED).body("Teacher added successfully!");
+    }
+
+    @PostMapping("student/register-bulk")
+    public ResponseEntity<Map<String, Object>> registerStudentsFromBody(
+            @RequestBody BulkStudentRegistrationRequest request) {
+
+        List<String> failedEntries = new ArrayList<>();
+        int successCount = 0;
+
+        String course = request.getCourse();
+        String section = request.getSection();
+        String batchYear = request.getBatchYear();
+        List<StudentRegistrationDTO> students = request.getStudents();
+
+        for (int i = 0; i < students.size(); i++) {
+            StudentRegistrationDTO dto = students.get(i);
+
+            try {
+                if (!isRowValid(dto)) {
+                    failedEntries.add("Invalid data at index: " + i);
+                    continue;
+                }
+
+                if (userService.doesWithEmailExist(dto.getEmail())) {
+                    failedEntries.add("Email already exists: " + dto.getEmail());
+                    continue;
+                }
+
+                String hashedPassword = passwordEncoder.encode(dto.getPassword());
+                User user = new User(
+                        dto.getUserName(),
+                        dto.getFirstName(),
+                        dto.getLastName(),
+                        dto.getEmail(),
+                        Long.parseLong(dto.getPhone()),
+                        hashedPassword,
+                        Role.STUDENT
+                );
+
+                StudentDetails studentDetails = new StudentDetails();
+                studentDetails.setUser(user);
+
+                int result = userService.addStudentUsers(
+                        dto.getUserName(),
+                        dto.getFirstName(),
+                        dto.getLastName(),
+                        dto.getEmail(),
+                        hashedPassword,
+                        Role.STUDENT.toString(),
+                        dto.getPhone(),
+                        studentDetails,
+                        course,
+                        section,
+                        Integer.parseInt(batchYear)
+                );
+
+                if (result == 1) successCount++;
+                else failedEntries.add("Failed to register user: " + dto.getEmail());
+
+            } catch (Exception e) {
+                failedEntries.add("Error processing index: " + i + " - " + e.getMessage());
+            }
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("successCount", successCount);
+        response.put("failedEntries", failedEntries);
+
+        return ResponseEntity.status(successCount > 0 ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    private boolean isRowValid(StudentRegistrationDTO dto) {
+        return dto.getUserName() != null &&
+                dto.getFirstName() != null &&
+                dto.getLastName() != null &&
+                dto.getEmail() != null && dto.getEmail().contains("@") &&
+                dto.getPassword() != null &&
+                dto.getPhone() != null && !dto.getPhone().isEmpty();
     }
 }
