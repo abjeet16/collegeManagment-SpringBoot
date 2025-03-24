@@ -1,8 +1,10 @@
 package com.mynotes.dto.responses;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class SubjectAttendanceDTO {
     private String subjectName;   // Name of the subject
     private int SubjectId;

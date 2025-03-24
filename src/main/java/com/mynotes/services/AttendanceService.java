@@ -8,9 +8,12 @@ import com.mynotes.enums.AttendanceStatus;
 import com.mynotes.models.Attendance;
 import com.mynotes.models.StudentDetails;
 import com.mynotes.models.Subject;
+import com.mynotes.models.views.StudentAttendanceSummary;
 import com.mynotes.repository.AttendanceRepository;
 import com.mynotes.repository.StudentDetailsRepository;
 import com.mynotes.repository.SubjectRepository;
+import com.mynotes.repository.viewRepo.StudentAttendanceSummaryRepository;
+import com.mynotes.services.viewServices.StudentAttendanceSummaryService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Service class for handling attendance-related operations.
@@ -35,6 +35,9 @@ public class AttendanceService {
     // Injects the AttendanceRepository to interact with the Attendance table
     @Autowired
     private AttendanceRepository attendanceRepository;
+
+    @Autowired
+    private StudentAttendanceSummaryRepository studentAttendanceSummaryRepository;
 
     // EntityManager is used for managing database transactions
     @PersistenceContext
@@ -56,68 +59,51 @@ public class AttendanceService {
         return percentage != null ? percentage : 0; // Return 0 if percentage is null
     }
 
-    /**
-     * Retrieves all attendance records for a specific student.
-     *
-     * @param studentId - The unique ID of the student.
-     * @return AttendanceResponseDTO containing attendance details.
-     */
     @Transactional  // Ensures atomicity (all operations succeed or fail together)
     public AttendanceResponseDTO getAllMyAttendance(String studentId) {
-        // Fetch student details based on studentId
-        StudentDetails studentDetails = studentDetailsRepository.findStudentDetailsByUucmsId(studentId);
-        if (studentDetails == null) {
-            throw new IllegalArgumentException("Student not found: " + studentId);
+        List<StudentAttendanceSummary> summaryList = studentAttendanceSummaryRepository.findByIdStudentId(studentId);
+
+        // Return an empty response instead of null
+        if (summaryList.isEmpty()) {
+            return new AttendanceResponseDTO();
         }
 
-        // Get class ID associated with the student
-        Long classId = (long) studentDetails.getClassEntity().getId();
-
-        // Retrieve all subjects for the student's course
-        List<Subject> subjects = subjectRepository.findByCourses(studentDetails.getClassEntity().getCourse());
-
-        // Fetch attendance summary for the student
-        List<Object[]> attendanceData = attendanceRepository.findAttendanceSummaryByStudent(studentId, classId);
-
-        // Map to store attendance details per subject
-        Map<Long, SubjectAttendanceDTO> attendanceMap = new HashMap<>();
-
-        // Initialize attendance details with zero values for each subject
-        for (Subject subject : subjects) {
-            SubjectAttendanceDTO dto = new SubjectAttendanceDTO();
-            dto.setSubjectId(subject.getId());
-            dto.setSubjectName(subject.getSubjectName());
-            dto.setTotalClasses(0);
-            dto.setAttendedClasses(0);
-            dto.setAttendancePercentage(0.0);
-            attendanceMap.put((long) subject.getId(), dto);
+        for (StudentAttendanceSummary summary : summaryList) {
+            System.out.println(studentId);
+            System.out.println(summary);
         }
 
-        // Update attendance records for each subject based on retrieved data
-        for (Object[] record : attendanceData) {
-            Long subjectId = ((Number) record[0]).longValue();
-            long totalClasses = ((Number) record[1]).longValue();
-            long attendedClasses = ((Number) record[2]).longValue();
+        AttendanceResponseDTO response = new AttendanceResponseDTO();
+        int totalClasses = 0;
+        int totalPresent = 0;
 
-            if (attendanceMap.containsKey(subjectId)) {
-                SubjectAttendanceDTO dto = attendanceMap.get(subjectId);
-                dto.setTotalClasses((int) totalClasses);
-                dto.setAttendedClasses((int) attendedClasses);
+        for (StudentAttendanceSummary summary : summaryList) {
+            // Use Optional to avoid null values
+            String subjectName = Optional.ofNullable(subjectRepository.getSubjectNameById(summary.getId().getSubjectId()))
+                    .orElse("Unknown Subject");
 
-                // Calculate percentage (avoid division by zero)
-                if (totalClasses > 0) {
-                    double percentage = ((double) attendedClasses / totalClasses) * 100;
-                    dto.setAttendancePercentage(percentage);
-                }
+            SubjectAttendanceDTO subject = new SubjectAttendanceDTO(
+                    subjectName,
+                    summary.getId().getSubjectId().intValue(),
+                    summary.getTotalClasses(),
+                    summary.getTotalPresent(),
+                    summary.getAttendancePercentage()
+            );
+
+            if (response.getSubjectAttendances() == null) {
+                response.setSubjectAttendances(new ArrayList<>());
             }
+            response.getSubjectAttendances().add(subject);
+
+            totalClasses += summary.getTotalClasses();
+            totalPresent += summary.getTotalPresent();
         }
 
-        // Prepare response object with overall percentage and subject-wise attendance
-        AttendanceResponseDTO attendanceResponseDTO = new AttendanceResponseDTO();
-        attendanceResponseDTO.setPercentageCount(getTotalAttendancePercentage(studentId));
-        attendanceResponseDTO.setSubjectAttendances(new ArrayList<>(attendanceMap.values()));
+        // Prevent division by zero
+        double percentage = (totalClasses == 0) ? 0.0 : (totalPresent * 100.0) / totalClasses;
+        response.setPercentageCount(percentage);
 
-        return attendanceResponseDTO;
+        return response;
     }
 
     /**

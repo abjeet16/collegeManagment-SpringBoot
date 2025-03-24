@@ -7,16 +7,8 @@ import lombok.Data;
 @Table(name = "student_attendance_summary")
 @Data
 public class StudentAttendanceSummary {
-
-    @Id  // Assuming student_id is unique in the view
-    @Column(name = "student_id")
-    private String studentId;
-
-    @Column(name = "class_id")
-    private Long classId;
-
-    @Column(name = "subject_id")
-    private Long subjectId;
+    @EmbeddedId
+    private AttendanceSummaryId id;
 
     @Column(name = "name")  // Concatenated first_name + last_name
     private String name;

@@ -33,24 +33,19 @@ public class SubjectService {
         subjectsRepository.save(subjects);
     }
 
-    public List<SubjectDTO> getSubjectsByCourseId(int courseId, int classId) {
-        int currentSemester = (classId == -1) ? -1 : classService.getCurrentSemester(classId);
-
-        return subjectsRepository.findSubjectsByCourseId(courseId).stream()
-                // Filter subjects only if classId is provided
-                .filter(subject -> classId == -1 || subject.getSemester() == currentSemester)
-                // Set assigned teacher
-                .peek(subject -> {
-                    if (classId == -1) {
-                        subject.setAssignedTeacher(null);
-                    } else {
+    public List<SubjectDTO> getSubjectsByCourseId(int courseId) {
+        return subjectsRepository.findSubjectsByCourseId(courseId);
+    }
+    public List<SubjectDTO> getSubjectsOfAClass(int classId,int courseId) {
+        int currentSemester = classService.getCurrentSemester(classId);
+        System.out.println(currentSemester);
+        return subjectsRepository.findSubjectsOfAClass(courseId, currentSemester).stream()
+                .peek( subject ->
                         subject.setAssignedTeacher(
-                                assignedTeacherService.getAssignedTeacherBySubjectIdAndClassId(
-                                        subject.getSubjectId(), classId
-                                )
-                        );
-                    }
-                })
-                .toList(); // Or .collect(Collectors.toList()) in older Java versions
+                        assignedTeacherService.getAssignedTeacherBySubjectIdAndClassId(
+                                subject.getSubjectId(), classId
+                        )
+                        )
+                ).toList();
     }
 }

@@ -5,12 +5,14 @@ import com.mynotes.dto.responses.StudentDetailsResponse;
 import com.mynotes.models.Attendance;
 import com.mynotes.models.StudentDetails;
 import com.mynotes.models.TeacherDetails;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StudentDetailsRepository extends JpaRepository<StudentDetails, Integer> {
@@ -32,5 +34,8 @@ public interface StudentDetailsRepository extends JpaRepository<StudentDetails, 
             "JOIN c.course co " +
             "WHERE u.Uucms_id = :uucmsId")
     StudentDetailsResponse getStudentDetailsByUserId(@Param("uucmsId") String uucmsId);
+
+    @Query("SELECT sd.classEntity.id FROM StudentDetails sd WHERE sd.user.Uucms_id = :uucmsId")
+    Optional<Integer> getStudentClassIdByUucmsId(String uucmsId);
 }
 

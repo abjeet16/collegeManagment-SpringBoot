@@ -148,7 +148,14 @@ public class AdminController {
 
     @GetMapping("/course/{courseId}/class/{classId}/subjects")
     public ResponseEntity<List<SubjectDTO>> getSubjectsByCourseId(@PathVariable int courseId,@PathVariable int classId) {
-        List<SubjectDTO> subjects = subjectService.getSubjectsByCourseId(courseId,classId);
+        List<SubjectDTO> subjects;
+        // if the class id is -1 then get all subjects of the course
+        if (classId == -1) {
+            subjects = subjectService.getSubjectsByCourseId(courseId);
+        }else {
+            // if the class id not -1 then get all subjects of the class
+            subjects = subjectService.getSubjectsOfAClass(classId,courseId);
+        }
         return ResponseEntity.ok(subjects);
     }
 

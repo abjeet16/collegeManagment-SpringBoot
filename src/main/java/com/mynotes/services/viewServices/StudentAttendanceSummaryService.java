@@ -18,11 +18,11 @@ public class StudentAttendanceSummaryService {
 
     @Transactional
     public List<studentsAttendenceSummuryDTO> getAttendanceSummary(Long classId, Long subjectId) {
-        List<StudentAttendanceSummary> studentAttendanceSummary = repository.findByClassIdAndSubjectId(classId, subjectId);
+        List<StudentAttendanceSummary> studentAttendanceSummary = repository.findByIdClassIdAndIdSubjectId(classId, subjectId);
         List<studentsAttendenceSummuryDTO> studentsAttendenceSummuryDTOS= new ArrayList<>();
         for (StudentAttendanceSummary studentAttendanceSummary1 : studentAttendanceSummary) {
             studentsAttendenceSummuryDTO studentsAttendenceSummuryDTO = new studentsAttendenceSummuryDTO();
-            studentsAttendenceSummuryDTO.setStudentId(studentAttendanceSummary1.getStudentId());
+            studentsAttendenceSummuryDTO.setStudentId(studentAttendanceSummary1.getId().getStudentId());
             studentsAttendenceSummuryDTO.setStudentName(studentAttendanceSummary1.getName());
             studentsAttendenceSummuryDTO.setPercentage(studentAttendanceSummary1.getAttendancePercentage());
             studentsAttendenceSummuryDTOS.add(studentsAttendenceSummuryDTO);
