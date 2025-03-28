@@ -47,6 +47,7 @@ public class AdminController {
 
     private final AssignedTeacherService assignedTeacherService;
 
+    // Add course
     @PostMapping("/add_course")
     private ResponseEntity<String> addCourse(@RequestBody AddCourseReqDTO addCourseReqDTO) {
         try {
@@ -58,8 +59,9 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to add course: " + e.getMessage());
         }
-    }
+    }//END OF ADD COURSE
 
+    // Add subject
     @PostMapping("/add_subject")
     private ResponseEntity<String> addSubject(@RequestBody AddSubjectReqDTO addSubjectReqDTO) {
         try {
@@ -69,8 +71,9 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to add subject: " + e.getMessage());
         }
-    }
+    }//END OF ADD SUBJECT
 
+    // Add class
     @PostMapping("/add_class")
     public ResponseEntity<String> addClass(@RequestBody AddClassReqDTO addClassReqDTO) {
         try {
@@ -81,8 +84,9 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
-    }
+    }//END OF ADD CLASS
 
+    // Assign teacher
     @PostMapping("/assignTeacher")
     public ResponseEntity<String> assignTeacher(@RequestBody AssignTeacherDTO assignTeacherDTO) {
         try {
@@ -91,8 +95,9 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
-    }
+    }//END OF ASSIGN TEACHER
 
+    // Update teacher
     @PutMapping("/assignTeacher")
     public ResponseEntity<String> updateTeacher(@RequestBody AssignTeacherDTO assignTeacherDTO , @RequestParam String password) {
         MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -111,14 +116,16 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
-    }
+    }//END OF UPDATE TEACHER
 
+    // Get all courses
     @GetMapping("/courses")
     public ResponseEntity<List<Courses>> getAllCourses() {
         List<Courses> courses = courseService.getAllCourses();
         return ResponseEntity.ok(courses);
-    }
+    }//END OF GET ALL COURSES
 
+    // Delete course
     @DeleteMapping("/deleteCourse/{courseId}")
     public ResponseEntity<String> deleteCourse(@PathVariable int courseId, @RequestParam String password) {
         MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -138,14 +145,16 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
-    }
+    }//END OF DELETE COURSE
 
+    // Get classes by course id
     @GetMapping("/course/{courseId}/classes")
     public ResponseEntity<List<ClassEntity>> getClassesByCourseId(@PathVariable int courseId) {
         List<ClassEntity> classes = classService.getClassesByCourseId(courseId);
         return ResponseEntity.ok(classes);
-    }
+    }//END OF GET CLASSES BY COURSE ID
 
+    // Get subjects by course id and class id
     @GetMapping("/course/{courseId}/class/{classId}/subjects")
     public ResponseEntity<List<SubjectDTO>> getSubjectsByCourseId(@PathVariable int courseId,@PathVariable int classId) {
         List<SubjectDTO> subjects;
@@ -157,30 +166,33 @@ public class AdminController {
             subjects = subjectService.getSubjectsOfAClass(classId,courseId);
         }
         return ResponseEntity.ok(subjects);
-    }
+    }//END OF GET SUBJECTS BY COURSE ID AND CLASS ID
 
+    // Get students of a class
     @GetMapping("/class/{classId}/students")
     public ResponseEntity<List<AllStudentsOfAClass>> getStudentsOfAClass(@PathVariable int classId) {
         List<AllStudentsOfAClass> students = studentService.getStudentsOfAClass(classId);
         return ResponseEntity.ok(students);
-    }
+    }//END OF GET STUDENTS OF A CLASS
 
+    // Get student by id
     @GetMapping("/student/{studentId}")
     public ResponseEntity<StudentDetailsResponse> getStudentById(@PathVariable String studentId) {
         StudentDetailsResponse student = studentService.getStudentById(studentId);
         return ResponseEntity.ok(student);
-    }
+    }//END OF GET STUDENT BY ID
 
-    @GetMapping("/attendence")
-    public ResponseEntity<List<StudentsSubjectAttendance>> getStudentAttendence(@RequestParam String studentId , @RequestParam String subjectId) {
-        List<StudentsSubjectAttendance> student = attendanceService.getStudentAttendence(studentId,subjectId);
+    // Get student attendance
+    @GetMapping("/attendance/student/{studentId}/subject/{subjectId}")
+    public ResponseEntity<List<StudentsSubjectAttendance>> getStudentAttendance(@PathVariable String studentId ,@PathVariable String subjectId) {
+        List<StudentsSubjectAttendance> student = attendanceService.getStudentAttendance(studentId,subjectId);
         return ResponseEntity.ok(student);
-    }
+    }//END OF GET STUDENT ATTENDANCE
 
     @PutMapping("/updateAttendance")
     public ResponseEntity<String> updateAttendance(@RequestBody AttendanceUpdateRequest request) {
         return ResponseEntity.ok(attendanceService.updateAttendance(
-                request.getStudentId(), request.getSubjectId(), request.getDate(), request.isStatus()
+                request.getId(), request.isStatus()
         ));
     }
 
@@ -263,7 +275,7 @@ public class AdminController {
 
     @PostMapping("student/register-bulk")
     public ResponseEntity<Map<String, Object>> registerStudentsFromBody(
-            @RequestBody DemoController.BulkStudentRegistrationRequest request) {
+            @RequestBody BulkStudentRegistrationRequest request) {
 
         // Get only a reference to the class (no DB fetch)
         ClassEntity classEntity = entityManager.getReference(ClassEntity.class, request.getClassEntityId());

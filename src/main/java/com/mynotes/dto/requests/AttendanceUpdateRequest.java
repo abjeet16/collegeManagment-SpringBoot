@@ -10,9 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AttendanceUpdateRequest {
-    private String studentId;
-    private String subjectId;
-    private LocalDate date;
+    private long id;
     private boolean status;
 }
 

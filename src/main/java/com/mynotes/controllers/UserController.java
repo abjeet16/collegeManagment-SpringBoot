@@ -41,16 +41,4 @@ public class UserController {
         // Return the user profile
         return ResponseEntity.ok(userProfile);
     }
-    @GetMapping("/my_total_attendences")
-    public ResponseEntity<Integer> getMyTotalAttendences() {
-        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        // Check if the user is authenticated
-        if (user == null) {
-            return ResponseEntity.status(401).body(null);
-        }
-
-        int totalAttendences = attendanceService.getTotalAttendancePercentage(user.getUserId());
-        return ResponseEntity.ok(totalAttendences);
-    }
 }

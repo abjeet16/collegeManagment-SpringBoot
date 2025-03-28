@@ -22,20 +22,9 @@ public class StudentController {
 
     private final AttendanceService attendanceService;
 
-    @GetMapping("/my_total_attendences")
-    public ResponseEntity<Integer> getMyTotalAttendences() {
-        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    @GetMapping("my_overall_attendance")
 
-        // Check if the user is authenticated
-        if (user == null) {
-            return ResponseEntity.status(401).body(null);
-        }
-        int totalAttendences = attendanceService.getTotalAttendancePercentage(user.getUserId());
-        return ResponseEntity.ok(totalAttendences);
-    }
-
-    @GetMapping("my_overall_attendences")
-    public ResponseEntity<AttendanceResponseDTO> testing() {
+    public ResponseEntity<AttendanceResponseDTO> getStudentsOverAllAttendance() {
         MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         // Check if the user is authenticated

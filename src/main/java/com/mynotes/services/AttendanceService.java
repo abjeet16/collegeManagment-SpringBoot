@@ -6,14 +6,10 @@ import com.mynotes.dto.responses.SubjectAndDateDTO;
 import com.mynotes.dto.responses.SubjectAttendanceDTO;
 import com.mynotes.enums.AttendanceStatus;
 import com.mynotes.models.Attendance;
-import com.mynotes.models.StudentDetails;
-import com.mynotes.models.Subject;
 import com.mynotes.models.views.StudentAttendanceSummary;
 import com.mynotes.repository.AttendanceRepository;
-import com.mynotes.repository.StudentDetailsRepository;
 import com.mynotes.repository.SubjectRepository;
 import com.mynotes.repository.viewRepo.StudentAttendanceSummaryRepository;
-import com.mynotes.services.viewServices.StudentAttendanceSummaryService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -45,19 +41,6 @@ public class AttendanceService {
 
     // Inject repositories for Subject and StudentDetails
     private final SubjectRepository subjectRepository;
-    private final StudentDetailsRepository studentDetailsRepository;
-
-    /**
-     * Retrieves the total attendance percentage of a student.
-     *
-     * @param studentId - The unique ID of the student.
-     * @return The attendance percentage (defaults to 0 if no record is found).
-     */
-    @Transactional(readOnly = true) // Read-only transaction for better performance
-    public Integer getTotalAttendancePercentage(String studentId) {
-        Integer percentage = attendanceRepository.getAttendancePercentageByStudentId(studentId);
-        return percentage != null ? percentage : 0; // Return 0 if percentage is null
-    }
 
     @Transactional  // Ensures atomicity (all operations succeed or fail together)
     public AttendanceResponseDTO getAllMyAttendance(String studentId) {
@@ -106,24 +89,13 @@ public class AttendanceService {
         return response;
     }
 
-    /**
-     * Retrieves the list of absent dates for a student in a particular subject.
-     *
-     * @param subjectId - The ID of the subject.
-     * @param userId - The ID of the student.
-     * @return A list of SubjectAndDateDTO representing absent dates.
-     */
+
     @Transactional(readOnly = true) // Optimized for read operations
     public List<SubjectAndDateDTO> getSubjectAbsent(String subjectId, String userId) {
         return attendanceRepository.findAbsentRecords(Long.parseLong(subjectId), userId);
     }
 
-    /**
-     * Saves a batch of attendance records efficiently using bulk insert.
-     * Uses EntityManager to avoid performance overhead caused by multiple insert calls.
-     *
-     * @param attendanceList - List of Attendance records to be saved.
-     */
+
     @Transactional // Ensures all inserts are committed together or rolled back in case of failure
     public void saveAllBatch(List<Attendance> attendanceList) {
         int batchSize = 50; // Batch size for optimized inserts
@@ -144,18 +116,22 @@ public class AttendanceService {
         entityManager.clear();
     }
 
-    public List<StudentsSubjectAttendance> getStudentAttendence(String studentId, String subjectId) {
+    public List<StudentsSubjectAttendance> getStudentAttendance(String studentId, String subjectId) {
         return attendanceRepository.findBySubjectIdAndStudentId(Long.parseLong(subjectId), studentId);
     }
 
-    public String updateAttendance(String studentId, String subjectId, LocalDate date, boolean status) {
-        Attendance attendance = attendanceRepository.findBySubjectIdAndStudentIdAndAttendanceDate(Long.parseLong(subjectId), studentId, date);
-        if (attendance == null) {
-            throw new IllegalArgumentException("Attendance record not found for student: " + studentId + ", subject: " + subjectId + ", date: " + date);
+    public String updateAttendance(long id, boolean status) {
+        Optional<Attendance> attendanceOptional = attendanceRepository.findById(id);
+
+        if (attendanceOptional.isPresent()) {
+            Attendance attendance = attendanceOptional.get();
+            attendance.setStatus(status ? AttendanceStatus.PRESENT : AttendanceStatus.ABSENT);
+            attendanceRepository.save(attendance);
+            return "Attendance updated successfully";
         }
-        attendance.setStatus(status ? AttendanceStatus.PRESENT : AttendanceStatus.ABSENT);
-        attendanceRepository.save(attendance);
-        return "Attendance updated successfully";
+
+        return "Attendance not found"; // Handle case when attendance record is missing
     }
+
 }
 
