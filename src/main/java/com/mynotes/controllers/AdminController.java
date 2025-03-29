@@ -296,4 +296,27 @@ public class AdminController {
                 .status(successCount > 0 ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST)
                 .body(result);
     }
+
+    /*
+     * if the password is not null then change the password
+     * else change the details of the user
+    */
+    @PutMapping("user/changeDetails")
+    public ResponseEntity<String> changeStudentDetails(@RequestBody UserDetailChangeReq studentDetails){
+        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+
+        // Verify the password instead of decoding
+        if (!passwordEncoder.matches(studentDetails.getAdminPassword(), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Admin password");
+        }
+        if (studentDetails.getPassword() != null) {
+            studentDetails.setPassword(passwordEncoder.encode(studentDetails.getPassword()));
+            return ResponseEntity.ok(userService.changeUserPassword(studentDetails));
+        }
+        return ResponseEntity.ok(userService.changeUserDetails(studentDetails));
+    }
 }

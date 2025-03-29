@@ -32,6 +32,7 @@ public class UserController {
 
         // Map the user details to the UserProfileDTO
         UserProfileDTO userProfile = new UserProfileDTO(
+                user.getUserId(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),

@@ -1,5 +1,6 @@
 package com.mynotes.services.auth;
 
+import com.mynotes.dto.requests.UserDetailChangeReq;
 import com.mynotes.dto.requests.StudentRegistrationDTO;
 import com.mynotes.dto.responses.AllTeachersDTO;
 import com.mynotes.dto.responses.TeacherDetailResponse;
@@ -181,6 +182,52 @@ public class UserService {
                 dto.getEmail() != null && dto.getEmail().contains("@") &&
                 dto.getPassword() != null &&
                 dto.getPhone() != null && !dto.getPhone().isEmpty();
+    }
+
+    public String changeUserPassword(UserDetailChangeReq studentDetails) {
+        User user = userRepository.getUserByUucmsId(studentDetails.getUniversityId());
+        if (user == null) {
+            return "No User with UUCMS ID: " + studentDetails.getUniversityId();
+        } else {
+            user.setPassword(studentDetails.getPassword());
+            userRepository.save(user);
+            return "Password changed successfully";
+        }
+    }
+
+    @Transactional
+    public String changeUserDetails(UserDetailChangeReq studentDetails) {
+        User user = userRepository.getUserByUucmsId(studentDetails.getUniversityId());
+        if (user == null) {
+            return "No User with UUCMS ID: " + studentDetails.getUniversityId();
+        } else {
+            String result = checkDetails(studentDetails,user);
+            if (result != null) {
+                return result;
+            }
+            user.setFirst_name(studentDetails.getFirstName());
+            user.setLast_name(studentDetails.getLastName());
+            user.setEmail(studentDetails.getEmail());
+            user.setPhone(studentDetails.getPhone());
+            if (studentDetails.getDepartment() != null) {
+                TeacherDetails teacherDetails = teacherDetailsRepository.findTeacherDetailsByUucmsId(studentDetails.getUniversityId());
+                teacherDetails.setDepartment(studentDetails.getDepartment());
+                teacherDetailsRepository.save(teacherDetails);
+            }
+            userRepository.save(user);
+            return "Details changed successfully";
+        }
+    }
+
+    private String checkDetails(UserDetailChangeReq studentDetails, User user) {
+        if (userRepository.existsByEmail(studentDetails.getEmail()) && !user.getEmail().equals(studentDetails.getEmail())) {
+            return "Email already exists";
+        } else if (userRepository.existsByPhone(studentDetails.getPhone()) && !user.getPhone().equals(studentDetails.getPhone())) {
+            return "Phone number already exists";
+        } else if (studentDetails.getEmail().equals(user.getEmail()) && studentDetails.getPhone().equals(user.getPhone()) && studentDetails.getFirstName().equals(user.getFirst_name()) && studentDetails.getLastName().equals(user.getLast_name())) {
+            return "No changes made";
+        }
+        return null;
     }
 }
 

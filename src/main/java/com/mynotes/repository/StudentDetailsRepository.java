@@ -5,6 +5,7 @@ import com.mynotes.dto.responses.StudentDetailsResponse;
 import com.mynotes.models.Attendance;
 import com.mynotes.models.StudentDetails;
 import com.mynotes.models.TeacherDetails;
+import com.mynotes.models.User;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -37,5 +38,7 @@ public interface StudentDetailsRepository extends JpaRepository<StudentDetails, 
 
     @Query("SELECT sd.classEntity.id FROM StudentDetails sd WHERE sd.user.Uucms_id = :uucmsId")
     Optional<Integer> getStudentClassIdByUucmsId(String uucmsId);
+
+    StudentDetails findByUser(User user);
 }
 

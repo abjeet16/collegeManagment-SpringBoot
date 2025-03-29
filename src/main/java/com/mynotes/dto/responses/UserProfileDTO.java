@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 public class UserProfileDTO {
+    private final String universityId;
     private final String first_name;
     private final String last_name;
     private final String email;
