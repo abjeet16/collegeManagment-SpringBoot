@@ -1,5 +1,6 @@
 package com.mynotes.dto.requests;
 
+import com.mynotes.enums.Department;
 import lombok.Data;
 import jakarta.annotation.Nullable;
 
@@ -26,6 +27,14 @@ public class UserDetailChangeReq {
     private String adminPassword;
 
     @Nullable
-    private String Department;
+    private String department;
+
+    @Nullable
+    public Department getDepartment() {
+        if (department != null) {
+            return Department.valueOf(department.toUpperCase());
+        }
+        return null;
+    }
 }
 

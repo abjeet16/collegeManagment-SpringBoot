@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class addUserRequest {
+public class addAdminRequest {
     @NotBlank(message = "Username is required")
     private String userName;
 
@@ -27,8 +27,4 @@ public class addUserRequest {
 
     @NotBlank(message = "Phone number is required")
     private String phone;
-
-    @NotBlank(message = "Role is required")
-    private String role;
-
 }

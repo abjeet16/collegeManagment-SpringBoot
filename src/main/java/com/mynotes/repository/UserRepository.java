@@ -1,5 +1,7 @@
 package com.mynotes.repository;
 
+import com.mynotes.dto.responses.AllStudentsOfAClass;
+import com.mynotes.dto.responses.UserProfileDTO;
 import com.mynotes.models.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
@@ -57,5 +59,11 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.Uucms_id = :id")
     boolean existsByUucmsId(@Param("id") String id);
+
+    @Query("SELECT new com.mynotes.dto.responses.AllStudentsOfAClass(u.first_name || ' ' || u.last_name, u.Uucms_id) FROM User u WHERE u.role = 'ADMIN'")
+    List<AllStudentsOfAClass> getAdmins();
+
+    @Query("SELECT new com.mynotes.dto.responses.UserProfileDTO(u.Uucms_id, u.first_name, u.last_name, u.email, u.phone) FROM User u WHERE u.Uucms_id = :adminId")
+    UserProfileDTO getUserById(String adminId);
 }
 // END OF USER REPOSITORY INTERFACE.

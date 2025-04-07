@@ -2,8 +2,11 @@ package com.mynotes.services.auth;
 
 import com.mynotes.dto.requests.UserDetailChangeReq;
 import com.mynotes.dto.requests.StudentRegistrationDTO;
+import com.mynotes.dto.requests.addAdminRequest;
+import com.mynotes.dto.responses.AllStudentsOfAClass;
 import com.mynotes.dto.responses.AllTeachersDTO;
 import com.mynotes.dto.responses.TeacherDetailResponse;
+import com.mynotes.dto.responses.UserProfileDTO;
 import com.mynotes.enums.Role;
 import com.mynotes.models.*;
 import com.mynotes.repository.*;
@@ -184,6 +187,7 @@ public class UserService {
                 dto.getPhone() != null && !dto.getPhone().isEmpty();
     }
 
+    @Transactional
     public String changeUserPassword(UserDetailChangeReq studentDetails) {
         User user = userRepository.getUserByUucmsId(studentDetails.getUniversityId());
         if (user == null) {
@@ -196,38 +200,100 @@ public class UserService {
     }
 
     @Transactional
-    public String changeUserDetails(UserDetailChangeReq studentDetails) {
-        User user = userRepository.getUserByUucmsId(studentDetails.getUniversityId());
+    public String changeUserDetails(UserDetailChangeReq userDetailChangeReq) {
+        User user = userRepository.getUserByUucmsId(userDetailChangeReq.getUniversityId());
         if (user == null) {
-            return "No User with UUCMS ID: " + studentDetails.getUniversityId();
+            return "No User with UUCMS ID: " + userDetailChangeReq.getUniversityId();
         } else {
-            String result = checkDetails(studentDetails,user);
+            String result = checkDetails(userDetailChangeReq,user);
             if (result != null) {
                 return result;
             }
-            user.setFirst_name(studentDetails.getFirstName());
-            user.setLast_name(studentDetails.getLastName());
-            user.setEmail(studentDetails.getEmail());
-            user.setPhone(studentDetails.getPhone());
-            if (studentDetails.getDepartment() != null) {
-                TeacherDetails teacherDetails = teacherDetailsRepository.findTeacherDetailsByUucmsId(studentDetails.getUniversityId());
-                teacherDetails.setDepartment(studentDetails.getDepartment());
+
+            if (userDetailChangeReq.getDepartment() != null) {
+                TeacherDetails teacherDetails = teacherDetailsRepository.findTeacherDetailsByUucmsId(userDetailChangeReq.getUniversityId());
+                teacherDetails.setDepartment(userDetailChangeReq.getDepartment().toString());
                 teacherDetailsRepository.save(teacherDetails);
             }
+
+            user.setFirst_name(userDetailChangeReq.getFirstName());
+            user.setLast_name(userDetailChangeReq.getLastName());
+            user.setEmail(userDetailChangeReq.getEmail());
+            user.setPhone(userDetailChangeReq.getPhone());
             userRepository.save(user);
             return "Details changed successfully";
         }
     }
 
-    private String checkDetails(UserDetailChangeReq studentDetails, User user) {
-        if (userRepository.existsByEmail(studentDetails.getEmail()) && !user.getEmail().equals(studentDetails.getEmail())) {
+    private String checkDetails(UserDetailChangeReq userDetailChangeReq, User user) {
+        boolean emailUnchanged = userDetailChangeReq.getEmail() == null || userDetailChangeReq.getEmail().equals(user.getEmail());
+        boolean phoneUnchanged = userDetailChangeReq.getPhone() == null || userDetailChangeReq.getPhone().equals(user.getPhone());
+        boolean firstNameUnchanged = userDetailChangeReq.getFirstName() == null || userDetailChangeReq.getFirstName().equals(user.getFirst_name());
+        boolean lastNameUnchanged = userDetailChangeReq.getLastName() == null || userDetailChangeReq.getLastName().equals(user.getLast_name());
+
+        // Check email conflict
+        if (userDetailChangeReq.getEmail() != null &&
+                userRepository.existsByEmail(userDetailChangeReq.getEmail()) &&
+                !userDetailChangeReq.getEmail().equals(user.getEmail())) {
             return "Email already exists";
-        } else if (userRepository.existsByPhone(studentDetails.getPhone()) && !user.getPhone().equals(studentDetails.getPhone())) {
+        }
+
+        // Check phone conflict
+        if (userDetailChangeReq.getPhone() != null &&
+                userRepository.existsByPhone(userDetailChangeReq.getPhone()) &&
+                !userDetailChangeReq.getPhone().equals(user.getPhone())) {
             return "Phone number already exists";
-        } else if (studentDetails.getEmail().equals(user.getEmail()) && studentDetails.getPhone().equals(user.getPhone()) && studentDetails.getFirstName().equals(user.getFirst_name()) && studentDetails.getLastName().equals(user.getLast_name())) {
+        }
+
+        // Check department difference if applicable
+        boolean departmentUnchanged = true;
+        if (userDetailChangeReq.getDepartment() != null) {
+            TeacherDetails teacherDetails = teacherDetailsRepository.findTeacherDetailsByUucmsId(userDetailChangeReq.getUniversityId());
+            if (teacherDetails == null || !userDetailChangeReq.getDepartment().equals(teacherDetails.getDepartment())) {
+                departmentUnchanged = false;
+            }
+        }
+
+        // Now check if everything is unchanged
+        if (emailUnchanged && phoneUnchanged && firstNameUnchanged && lastNameUnchanged && departmentUnchanged) {
             return "No changes made";
         }
+
         return null;
+    }
+
+    public List<AllStudentsOfAClass> getAdmins() {
+        return userRepository.getAdmins();
+    }
+
+    public String addAdmin(addAdminRequest addAdminReqDTO) {
+        String result = verifyAdminDetails(addAdminReqDTO);
+        if (result != null) {
+            return result;
+        }
+        try {
+            long phone = Long.parseLong(addAdminReqDTO.getPhone());
+        } catch (NumberFormatException e) {
+            return "Invalid phone number";
+        }
+        User user = new User(addAdminReqDTO.getUserName(), addAdminReqDTO.getFirstName(), addAdminReqDTO.getLastName(), addAdminReqDTO.getEmail(), Long.valueOf(addAdminReqDTO.getPhone()), addAdminReqDTO.getPassword(), Role.ADMIN);
+        userRepository.save(user);
+        return "Admin added successfully!";
+    }
+
+    private String verifyAdminDetails(addAdminRequest addAdminReqDTO) {
+        if (userRepository.existsByEmail(addAdminReqDTO.getEmail())) {
+            return "Email already exists";
+        } else if (userRepository.existsByPhone(Long.valueOf(addAdminReqDTO.getPhone()))) {
+            return "Phone number already exists";
+        } else if (userRepository.existsByUucmsId(addAdminReqDTO.getUserName())) {
+            return "Username already exists";
+        }
+        return null;
+    }
+
+    public UserProfileDTO getAdminById(String adminId) {
+        return userRepository.getUserById(adminId);
     }
 }
 

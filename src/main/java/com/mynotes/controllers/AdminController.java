@@ -19,8 +19,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -207,7 +209,7 @@ public class AdminController {
     }
 
     @PostMapping("/addAdmin")
-    public ResponseEntity<String> addUser(@Valid @RequestBody addUserRequest request) {
+    public ResponseEntity<String> addUser(@Valid @RequestBody addAdminRequest request) {
 
         // Check if email already exists
         if (userService.doesWithEmailExist(request.getEmail())) {
@@ -318,5 +320,39 @@ public class AdminController {
             return ResponseEntity.ok(userService.changeUserPassword(studentDetails));
         }
         return ResponseEntity.ok(userService.changeUserDetails(studentDetails));
+    }
+
+    // Get all admins
+    // using the all students of a class as response
+    @GetMapping
+    public ResponseEntity<List<AllStudentsOfAClass>> getAdmins() {
+        List<AllStudentsOfAClass> admins = userService.getAdmins();
+        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        admins.removeIf(admin -> Objects.equals(admin.getStudentId(), user.getUserId()));
+        if (admins.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+        }
+        return ResponseEntity.ok(admins);
+    }
+
+    @PostMapping
+    public ResponseEntity<String> addAdmin(@RequestBody addAdminRequest addAdminReqDTO) {
+        try {
+            addAdminReqDTO.setPassword(passwordEncoder.encode(addAdminReqDTO.getPassword()));
+            String result = userService.addAdmin(addAdminReqDTO);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to add admin: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{adminId}")
+    public ResponseEntity<UserProfileDTO> getAdminById(@PathVariable String adminId) {
+        UserProfileDTO admin = userService.getAdminById(adminId);
+        if (admin == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(admin);
     }
 }

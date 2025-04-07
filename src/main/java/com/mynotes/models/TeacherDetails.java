@@ -39,7 +39,7 @@ public class TeacherDetails {
                 this.department = Department.BA;
                 break;
             case "BCOM":
-                this.department = Department.Bcom;
+                this.department = Department.BCOM;
                 break;
             default:
                 throw new IllegalArgumentException("Invalid department: " + departmentString);
