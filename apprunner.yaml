@@ -1,8 +1,0 @@
-version: 1.0
-runtime: java
-build:
-  commands:
-    - ./mvnw clean package -DskipTests
-run:
-  command: java -jar target/*.jar
-
