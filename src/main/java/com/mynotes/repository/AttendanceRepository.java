@@ -52,5 +52,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     Attendance findBySubjectIdAndStudentIdAndAttendanceDate(long subjectId, String studentId, LocalDate date);
 
+    @Query("DELETE FROM Attendance a WHERE a.classId = :classId")
+    void deleteByClassId(int classId);
 }
 

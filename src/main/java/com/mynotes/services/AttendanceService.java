@@ -133,5 +133,10 @@ public class AttendanceService {
         return "Attendance not found"; // Handle case when attendance record is missing
     }
 
+    public void deleteAttendanceByClassId(int classId) {
+        attendanceRepository.deleteByClassId(classId);
+    }
 }
+
+
 

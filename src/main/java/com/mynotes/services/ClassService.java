@@ -7,6 +7,7 @@ import com.mynotes.repository.ClassRepository;
 import com.mynotes.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -38,5 +39,11 @@ public class ClassService {
 
     public int getCurrentSemester(int classId) {
         return classRepository.getCurrentSemester(classId);
+    }
+
+    @Transactional
+    public String promoteStudents() {
+        classRepository.promoteAllClasses();
+        return "Promoted successfully";
     }
 }

@@ -252,7 +252,7 @@ public class AdminController {
         User user = new User(request.getUserName(),request.getFirstName(),request.getLastName(),request.getEmail(),Long.parseLong(request.getPhone()), hashedPassword, Role.TEACHER);
         TeacherDetails teacherDetails = new TeacherDetails();
         teacherDetails.setUser(user);
-        teacherDetails.setDepartment(request.getDepartment());
+        teacherDetails.setDepartment(request.getDepartment().toUpperCase());
 
         // Store user in the database
         int result = userService.addTeacherUsers(
@@ -354,5 +354,29 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         return ResponseEntity.ok(admin);
+    }
+
+    @PutMapping("/promoteStudents")
+    public ResponseEntity<String> promoteStudents(@RequestParam String password) {
+        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+        }
+
+        return ResponseEntity.ok(classService.promoteStudents());
+    }
+    @DeleteMapping("/deleteStudents/{classId}")
+    public ResponseEntity<String> deleteStudent(@PathVariable int classId,@RequestParam String password) {
+        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+        }
+        return ResponseEntity.ok(studentService.deleteStudent(classId));
     }
 }
