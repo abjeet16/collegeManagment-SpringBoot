@@ -13,6 +13,9 @@ public class StudentAttendanceSummary {
     @Column(name = "name")  // Concatenated first_name + last_name
     private String name;
 
+    @Column(name = "semester")
+    private int semester;
+
     @Column(name = "total_present")
     private Long totalPresent;
 

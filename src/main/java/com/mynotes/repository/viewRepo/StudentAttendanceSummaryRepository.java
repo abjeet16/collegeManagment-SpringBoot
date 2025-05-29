@@ -12,6 +12,6 @@ public interface StudentAttendanceSummaryRepository extends JpaRepository<Studen
 
     List<StudentAttendanceSummary> findByIdClassIdAndIdSubjectId(Long classId, Long subjectId);
 
-    List<StudentAttendanceSummary> findByIdStudentId(String studentId);
+    List<StudentAttendanceSummary> findByIdStudentIdAndSemester(String studentId, int semester);
 }
 

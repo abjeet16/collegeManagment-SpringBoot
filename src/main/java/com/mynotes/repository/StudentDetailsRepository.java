@@ -47,5 +47,8 @@ public interface StudentDetailsRepository extends JpaRepository<StudentDetails, 
     @Transactional
     @Query("DELETE FROM StudentDetails sd WHERE sd.classEntity.id = :classId")
     void deleteByClassEntityId(@Param("classId") int classId);
+
+    @Query("SELECT sd.classEntity.currentSemester FROM StudentDetails sd WHERE sd.user.Uucms_id = :studentId")
+    int getSemesterByUserId(String studentId);
 }
 

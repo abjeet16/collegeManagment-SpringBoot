@@ -13,6 +13,7 @@ import com.mynotes.models.StudentDetails;
 import com.mynotes.models.views.StudentAttendanceSummary;
 import com.mynotes.services.AssignedTeacherService;
 import com.mynotes.services.AttendanceService;
+import com.mynotes.services.ClassService;
 import com.mynotes.services.StudentService;
 import com.mynotes.services.auth.MyCustomUserDetails;
 import com.mynotes.services.viewServices.StudentAttendanceSummaryService;
@@ -39,6 +40,7 @@ public class TeacherController {
     private final AssignedTeacherService assignedTeacherService;
     private final AttendanceService attendanceService;
     private final StudentService studentService;
+    private final ClassService classService;
     private final StudentAttendanceSummaryService studentAttendanceSummaryService;
 
     @GetMapping("/my_classes")
@@ -93,6 +95,7 @@ public class TeacherController {
             attendance.setStudentId(record.getStudentId());
             attendance.setClassId(classId);
             attendance.setSubjectId(subjectId);
+            attendance.setSemester(classService.getCurrentSemester(Math.toIntExact(classId)));
             attendance.setSchedulePeriod(schedulePeriod);
             attendance.setAttendanceDate(LocalDate.now());
             attendance.setStatus(Boolean.TRUE.equals(record.getIsPresent())

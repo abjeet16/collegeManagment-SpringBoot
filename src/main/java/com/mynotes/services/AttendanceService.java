@@ -8,6 +8,7 @@ import com.mynotes.enums.AttendanceStatus;
 import com.mynotes.models.Attendance;
 import com.mynotes.models.views.StudentAttendanceSummary;
 import com.mynotes.repository.AttendanceRepository;
+import com.mynotes.repository.StudentDetailsRepository;
 import com.mynotes.repository.SubjectRepository;
 import com.mynotes.repository.viewRepo.StudentAttendanceSummaryRepository;
 import jakarta.persistence.EntityManager;
@@ -17,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -33,6 +33,9 @@ public class AttendanceService {
     private AttendanceRepository attendanceRepository;
 
     @Autowired
+    StudentDetailsRepository studentRepository;
+
+    @Autowired
     private StudentAttendanceSummaryRepository studentAttendanceSummaryRepository;
 
     // EntityManager is used for managing database transactions
@@ -44,16 +47,12 @@ public class AttendanceService {
 
     @Transactional  // Ensures atomicity (all operations succeed or fail together)
     public AttendanceResponseDTO getAllMyAttendance(String studentId) {
-        List<StudentAttendanceSummary> summaryList = studentAttendanceSummaryRepository.findByIdStudentId(studentId);
+        int semester = studentRepository.getSemesterByUserId(studentId);
+        List<StudentAttendanceSummary> summaryList = studentAttendanceSummaryRepository.findByIdStudentIdAndSemester(studentId,semester);
 
         // Return an empty response instead of null
         if (summaryList.isEmpty()) {
             return new AttendanceResponseDTO();
-        }
-
-        for (StudentAttendanceSummary summary : summaryList) {
-            System.out.println(studentId);
-            System.out.println(summary);
         }
 
         AttendanceResponseDTO response = new AttendanceResponseDTO();
@@ -135,6 +134,10 @@ public class AttendanceService {
 
     public void deleteAttendanceByClassId(int classId) {
         attendanceRepository.deleteByClassId(classId);
+    }
+
+    public void deleteAll() {
+        attendanceRepository.deleteAll();
     }
 }
 

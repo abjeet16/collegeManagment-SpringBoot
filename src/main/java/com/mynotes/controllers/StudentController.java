@@ -23,7 +23,6 @@ public class StudentController {
     private final AttendanceService attendanceService;
 
     @GetMapping("my_overall_attendance")
-
     public ResponseEntity<AttendanceResponseDTO> getStudentsOverAllAttendance() {
         MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 

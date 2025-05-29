@@ -368,6 +368,7 @@ public class AdminController {
 
         return ResponseEntity.ok(classService.promoteStudents());
     }
+
     @DeleteMapping("/deleteStudents/{classId}")
     public ResponseEntity<String> deleteStudent(@PathVariable int classId,@RequestParam String password) {
         MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -377,6 +378,6 @@ public class AdminController {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
-        return ResponseEntity.ok(studentService.deleteStudent(classId));
+        return ResponseEntity.ok(studentService.deleteStudents(classId));
     }
 }

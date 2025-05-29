@@ -2,8 +2,6 @@ package com.mynotes.services;
 
 import com.mynotes.dto.responses.AllStudentsOfAClass;
 import com.mynotes.dto.responses.StudentDetailsResponse;
-import com.mynotes.models.Attendance;
-import com.mynotes.models.StudentDetails;
 import com.mynotes.repository.ClassRepository;
 import com.mynotes.repository.StudentDetailsRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,14 +32,18 @@ public class StudentService {
     }
 
     @Transactional
-    public String deleteStudent(int classId) {
+    public String deleteStudents(int classId) {
         try {
-            studentRepository.deleteByClassEntityId(classId);  // assumes method is correctly defined
+            studentRepository.deleteByClassEntityId(classId);
             classRepository.deleteById(classId);
             attendanceService.deleteAttendanceByClassId(classId);
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete class and students: " + e.getMessage(), e);
         }
         return "deleted successfully.";
+    }
+
+    public int getSemesterOfStudent(String studentId) {
+        return studentRepository.getSemesterByUserId(studentId);
     }
 }

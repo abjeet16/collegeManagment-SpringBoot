@@ -21,6 +21,9 @@ public class Attendance {
     @Column(name = "class_id", nullable = false)
     private Long classId;
 
+    @Column(name = "semester", nullable = false)
+    private int semester;
+
     @Column(name = "subject_id", nullable = false)
     private Long subjectId;
 

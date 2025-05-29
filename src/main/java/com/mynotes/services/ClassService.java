@@ -19,6 +19,8 @@ public class ClassService {
 
     private final CourseRepository courseRepository;
 
+    private final AssignedTeacherService assignedTeacherService;
+
     public void addClass(AddClassReqDTO addClassReqDTO) {
         ClassEntity classEntity = new ClassEntity();
         classEntity.setBatchYear(addClassReqDTO.getBatchYear());
@@ -44,6 +46,7 @@ public class ClassService {
     @Transactional
     public String promoteStudents() {
         classRepository.promoteAllClasses();
+        assignedTeacherService.deleteAll();
         return "Promoted successfully";
     }
 }

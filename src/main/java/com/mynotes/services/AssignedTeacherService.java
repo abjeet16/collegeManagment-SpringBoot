@@ -69,4 +69,8 @@ public class AssignedTeacherService {
     public void updateTeacher(AssignTeacherDTO assignTeacherDTO) {
         assignedTeacherRepository.updateTeacher(assignTeacherDTO.getTeacherId(),assignTeacherDTO.getClassId(),assignTeacherDTO.getSubjectId());
     }
+
+    public void deleteAll() {
+        assignedTeacherRepository.deleteAll();
+    }
 }
