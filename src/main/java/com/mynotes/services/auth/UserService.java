@@ -43,6 +43,12 @@ public class UserService {
     @Autowired
     private ClassRepository classRepository;
 
+    @Autowired
+    private AttendanceRepository attendanceRepository;
+
+    @Autowired
+    private AssignedTeacherRepository assignedTeacherRepository;
+
     public User loadUserByEmail(String email) {
         return userRepository.getUserByEmail(email);
     }
@@ -294,6 +300,29 @@ public class UserService {
 
     public UserProfileDTO getAdminById(String adminId) {
         return userRepository.getUserById(adminId);
+    }
+
+    @Transactional
+    public String deleteTeacher(String teacherId) {
+        try {
+            assignedTeacherRepository.deleteAssignedTeacherByTeacherUucmsId(teacherId);
+            teacherDetailsRepository.deleteTeacherDetailsByUucmsId(teacherId);
+            userRepository.deleteById(teacherId);
+            return "Teacher deleted successfully";
+        } catch (Exception e) {
+            return "Error deleting teacher: " + e.getMessage();
+        }
+    }
+
+    public String deleteStudent(String studentId) {
+        try {
+            attendanceRepository.deleteByStudentId(studentId);
+            studentDetailsRepository.deleteByUucmsId(studentId);
+            userRepository.deleteById(studentId);
+            return "Student deleted successfully";
+        }catch (Exception e){
+            return "Error deleting student: " + e.getMessage();
+        }
     }
 }
 

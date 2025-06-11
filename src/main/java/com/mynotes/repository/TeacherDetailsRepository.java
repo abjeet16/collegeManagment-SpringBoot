@@ -7,8 +7,10 @@ import com.mynotes.models.TeacherDetails;
 import com.mynotes.models.User;
 import org.apache.xmlbeans.impl.xb.xsdschema.Attribute;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,4 +30,9 @@ public interface TeacherDetailsRepository extends JpaRepository<TeacherDetails,I
     @Query("SELECT new com.mynotes.dto.responses.TeacherDetailResponse(t.department, u.phone, u.email, u.last_name, u.first_name, u.Uucms_id) " +
             "FROM TeacherDetails t JOIN t.user u WHERE u.Uucms_id = :uucmsId")
     TeacherDetailResponse getTeacherDetailsByUucmsId(@Param("uucmsId") String uucmsId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM TeacherDetails td WHERE td.user.Uucms_id = :teacherId")
+    void deleteTeacherDetailsByUucmsId(String teacherId);
 }

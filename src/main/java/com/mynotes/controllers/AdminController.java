@@ -380,4 +380,30 @@ public class AdminController {
         }
         return ResponseEntity.ok(studentService.deleteStudents(classId));
     }
+
+    @DeleteMapping("/deleteTeacher/{teacherId}")
+    public ResponseEntity<String> deleteTeacher(@PathVariable String teacherId,@RequestParam String adminPassword) {
+        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+        if (!passwordEncoder.matches(adminPassword, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+        }
+        return ResponseEntity.ok(userService.deleteTeacher(teacherId));
+    }
+
+    @DeleteMapping("/deleteStudent/{studentId}")
+    public ResponseEntity<String> deleteStudent(@PathVariable String studentId,@RequestParam String adminPassword) {
+        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+        if (!passwordEncoder.matches(adminPassword, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+        }
+        return ResponseEntity.ok(userService.deleteStudent(studentId));
+    }
+
+
 }

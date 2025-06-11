@@ -2,14 +2,15 @@ package com.mynotes.controllers;
 
 import com.mynotes.dto.responses.UserProfileDTO;
 import com.mynotes.services.AttendanceService;
+import com.mynotes.services.JwtTokenService;
 import com.mynotes.services.auth.MyCustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.stream.Collectors;
 
@@ -19,6 +20,9 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final AttendanceService attendanceService;
+
+    @Autowired
+    private JwtTokenService jwtTokenService; // Service for generating and managing JWT tokens.
 
     @GetMapping("/my_profile")
     public ResponseEntity<UserProfileDTO> getMyProfile() {

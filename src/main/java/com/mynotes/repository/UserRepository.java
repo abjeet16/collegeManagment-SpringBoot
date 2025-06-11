@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 @Repository
-public interface UserRepository extends CrudRepository<User, Integer> {
+public interface UserRepository extends CrudRepository<User, String> {
 
     @Query(value = "SELECT email FROM users WHERE email = :email", nativeQuery = true)
     List<String> doesEmailExist(@Param("email")String email);

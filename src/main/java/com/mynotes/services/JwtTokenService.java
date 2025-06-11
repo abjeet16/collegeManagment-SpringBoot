@@ -32,21 +32,6 @@ public class JwtTokenService {
     }
 
     /**
-     * Extracts expiration date from the JWT token.
-     */
-    public Date extractExpiration(String token) {
-        try {
-            return extractClaim(token, Claims::getExpiration);
-        } catch (ExpiredJwtException e) {
-            System.out.println("The token has expired.");
-            return null;
-        } catch (Exception e) {
-            System.out.println("Error parsing token: " + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
      * Extracts a specific claim from the JWT token.
      */
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -74,10 +59,29 @@ public class JwtTokenService {
     }
 
     /**
+     * Extracts expiration date from the JWT token.
+     */
+    public Date extractExpiration(String token) {
+        try {
+            return extractClaim(token, Claims::getExpiration);
+        } catch (ExpiredJwtException e) {
+            System.out.println("The token has expired.");
+            return null;
+        } catch (Exception e) {
+            System.out.println("Error parsing token: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Checks if the token is expired.
      */
     public Boolean isTokenExpired(String token) {
-        return extractExpiration(token) != null && extractExpiration(token).before(new Date());
+        Date expiration = extractExpiration(token);
+        if (expiration == null) {
+            return true; // If token can't be parsed or is expired, consider it expired
+        }
+        return expiration.before(new Date());
     }
 
     /**

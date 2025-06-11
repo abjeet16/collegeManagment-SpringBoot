@@ -6,8 +6,10 @@ import com.mynotes.dto.responses.SubjectAndDateDTO;
 import com.mynotes.enums.AttendanceStatus;
 import com.mynotes.models.Attendance;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -54,5 +56,10 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     @Query("DELETE FROM Attendance a WHERE a.classId = :classId")
     void deleteByClassId(int classId);
+
+    @Modifying
+    @Transactional
+    @Query("Delete from Attendance a where a.studentId = :studentId")
+    void deleteByStudentId(@Param("studentId") String studentId);
 }
 
