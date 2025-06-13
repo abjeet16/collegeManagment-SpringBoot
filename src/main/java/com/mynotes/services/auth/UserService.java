@@ -305,8 +305,6 @@ public class UserService {
     @Transactional
     public String deleteTeacher(String teacherId) {
         try {
-            assignedTeacherRepository.deleteAssignedTeacherByTeacherUucmsId(teacherId);
-            teacherDetailsRepository.deleteTeacherDetailsByUucmsId(teacherId);
             userRepository.deleteById(teacherId);
             return "Teacher deleted successfully";
         } catch (Exception e) {
@@ -317,7 +315,7 @@ public class UserService {
     public String deleteStudent(String studentId) {
         try {
             attendanceRepository.deleteByStudentId(studentId);
-            studentDetailsRepository.deleteByUucmsId(studentId);
+            //studentDetailsRepository.deleteByUucmsId(studentId);
             userRepository.deleteById(studentId);
             return "Student deleted successfully";
         }catch (Exception e){

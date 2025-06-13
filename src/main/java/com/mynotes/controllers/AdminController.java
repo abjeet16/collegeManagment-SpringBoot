@@ -369,6 +369,19 @@ public class AdminController {
         return ResponseEntity.ok(classService.promoteStudents());
     }
 
+    @PutMapping("/demoteStudents")
+    public ResponseEntity<String> demoteStudents(@RequestParam String password) {
+        MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+        }
+
+        return ResponseEntity.ok(classService.demoteStudents());
+    }
+
     @DeleteMapping("/deleteStudents/{classId}")
     public ResponseEntity<String> deleteStudent(@PathVariable int classId,@RequestParam String password) {
         MyCustomUserDetails user = (MyCustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -404,6 +417,4 @@ public class AdminController {
         }
         return ResponseEntity.ok(userService.deleteStudent(studentId));
     }
-
-
 }

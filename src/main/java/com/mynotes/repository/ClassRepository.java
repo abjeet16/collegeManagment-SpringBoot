@@ -23,4 +23,7 @@ public interface ClassRepository extends JpaRepository<ClassEntity, Integer> {
     @Query("UPDATE ClassEntity c SET c.currentSemester = c.currentSemester + 1")
     void promoteAllClasses();
 
+    @Modifying
+    @Query("UPDATE ClassEntity c SET c.currentSemester = c.currentSemester - 1 Where c.currentSemester > 1")
+    void demoteAllClasses();
 }

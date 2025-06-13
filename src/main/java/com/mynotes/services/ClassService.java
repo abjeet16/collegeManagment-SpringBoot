@@ -49,4 +49,11 @@ public class ClassService {
         assignedTeacherService.deleteAll();
         return "Promoted successfully";
     }
+
+    @Transactional
+    public String demoteStudents() {
+        classRepository.demoteAllClasses();
+        assignedTeacherService.deleteAll();
+        return "Demoted successfully";
+    }
 }
