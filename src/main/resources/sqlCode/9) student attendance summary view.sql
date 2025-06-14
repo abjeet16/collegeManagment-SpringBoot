@@ -1,3 +1,4 @@
+#9th to execute
 use collegemanagement;
 CREATE VIEW student_attendance_summary AS
 SELECT
