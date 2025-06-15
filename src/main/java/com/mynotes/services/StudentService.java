@@ -42,8 +42,4 @@ public class StudentService {
         }
         return "deleted successfully.";
     }
-
-    public int getSemesterOfStudent(String studentId) {
-        return studentRepository.getSemesterByUserId(studentId);
-    }
 }

@@ -12,11 +12,7 @@ import java.util.List;
 
 @Repository
 public interface SubjectRepository extends JpaRepository<Subject,Integer> {
-    boolean existsBySubjectId(String subjectId);
-
     Subject findBySubjectId(String subjectId);
-
-    List<Subject> findByCourses(Courses course);
 
     @Query("SELECT new com.mynotes.dto.responses.SubjectDTO(s.id, s.subjectName, s.subjectId ,s.semester) FROM Subject s WHERE s.courses.id = :courseId")
     List<SubjectDTO> findSubjectsByCourseId(@Param("courseId") int courseId);

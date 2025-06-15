@@ -1,9 +1,6 @@
 package com.mynotes.services;
 
-import com.mynotes.dto.responses.AttendanceResponseDTO;
-import com.mynotes.dto.responses.StudentsSubjectAttendance;
-import com.mynotes.dto.responses.SubjectAndDateDTO;
-import com.mynotes.dto.responses.SubjectAttendanceDTO;
+import com.mynotes.dto.responses.*;
 import com.mynotes.enums.AttendanceStatus;
 import com.mynotes.models.Attendance;
 import com.mynotes.models.views.StudentAttendanceSummary;
@@ -17,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
 
 /**
@@ -48,7 +44,7 @@ public class AttendanceService {
     @Transactional  // Ensures atomicity (all operations succeed or fail together)
     public AttendanceResponseDTO getAllMyAttendance(String studentId) {
         int semester = studentRepository.getSemesterByUserId(studentId);
-        List<StudentAttendanceSummary> summaryList = studentAttendanceSummaryRepository.findByIdStudentIdAndSemester(studentId,semester);
+        List<StudentAttendanceSummary> summaryList = studentAttendanceSummaryRepository.findByIdStudentIdAndSemester(studentId, semester);
 
         // Return an empty response instead of null
         if (summaryList.isEmpty()) {
@@ -134,10 +130,6 @@ public class AttendanceService {
 
     public void deleteAttendanceByClassId(int classId) {
         attendanceRepository.deleteByClassId(classId);
-    }
-
-    public void deleteAll() {
-        attendanceRepository.deleteAll();
     }
 }
 

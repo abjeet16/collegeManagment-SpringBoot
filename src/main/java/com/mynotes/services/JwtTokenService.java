@@ -22,7 +22,7 @@ public class JwtTokenService {
     @Value("${jwt.secret}") // Fetches secret key from application.properties or application.yml
     private String SECRET_KEY;
 
-    private final long EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 30; // 30 days
+    private final long EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 30;
 
     /**
      * Extracts the username from the JWT token.

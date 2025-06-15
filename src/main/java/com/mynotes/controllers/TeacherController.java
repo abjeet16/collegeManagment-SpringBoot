@@ -132,7 +132,7 @@ public class TeacherController {
     @GetMapping("attendance/{classId}/{subjectId}")
     public List<studentsAttendenceSummuryDTO> getSummary(
             @PathVariable Long classId,
-            @PathVariable Long subjectId) {
+            @PathVariable Long subjectId){
         return studentAttendanceSummaryService.getAttendanceSummary(classId, subjectId);
     }
 }

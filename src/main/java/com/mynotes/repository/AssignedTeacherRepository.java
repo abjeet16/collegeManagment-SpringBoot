@@ -1,6 +1,5 @@
 package com.mynotes.repository;
 
-import com.mynotes.dto.requests.AssignTeacherDTO;
 import com.mynotes.models.AssignedTeacher;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,16 +27,4 @@ public interface AssignedTeacherRepository extends JpaRepository<AssignedTeacher
             "WHERE at.subject.id = :subjectId AND at.classEntity.id = :classId")
     String getAssignedTeacherFullNameBySubjectIdAndClassId(@Param("subjectId") int subjectId,
                                                            @Param("classId") int classId);
-
-    @Modifying
-    @Transactional
-    @Query(value = """
-    DELETE FROM assigned_teacher 
-    WHERE teacher_id IN (
-        SELECT td.id FROM teacher_details td
-        JOIN users u ON td.user_id = u.uucms_id
-        WHERE u.uucms_id = :teacherId
-    )
-    """, nativeQuery = true)
-    void deleteAssignedTeacherByTeacherUucmsId(@Param("teacherId") String teacherId);
 }

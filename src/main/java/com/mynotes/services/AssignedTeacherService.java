@@ -24,8 +24,6 @@ public class AssignedTeacherService {
 
     private final TeacherDetailsRepository teacherRepository;
 
-    private final UserRepository userRepository;
-
     public void assignTeacherToSubject(AssignTeacherDTO assignTeacherDTO) {
         // Fetch Subject
         Subject subject = subjectRepository.findBySubjectId(assignTeacherDTO.getSubjectId());

@@ -30,9 +30,4 @@ public interface TeacherDetailsRepository extends JpaRepository<TeacherDetails,I
     @Query("SELECT new com.mynotes.dto.responses.TeacherDetailResponse(t.department, u.phone, u.email, u.last_name, u.first_name, u.Uucms_id) " +
             "FROM TeacherDetails t JOIN t.user u WHERE u.Uucms_id = :uucmsId")
     TeacherDetailResponse getTeacherDetailsByUucmsId(@Param("uucmsId") String uucmsId);
-
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM TeacherDetails td WHERE td.user.Uucms_id = :teacherId")
-    void deleteTeacherDetailsByUucmsId(String teacherId);
 }

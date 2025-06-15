@@ -19,8 +19,6 @@ import java.util.Optional;
 
 @Repository
 public interface StudentDetailsRepository extends JpaRepository<StudentDetails, Integer> {
-    @Query("SELECT sd FROM StudentDetails sd JOIN FETCH sd.user u WHERE u.Uucms_id = :uucmsId")
-    StudentDetails findStudentDetailsByUucmsId(String uucmsId);
 
     @Query("SELECT new com.mynotes.dto.responses.AllStudentsOfAClass(u.first_name || ' ' || u.last_name, u.Uucms_id) " +
             "FROM StudentDetails sd " +
@@ -38,11 +36,6 @@ public interface StudentDetailsRepository extends JpaRepository<StudentDetails, 
             "WHERE u.Uucms_id = :uucmsId")
     StudentDetailsResponse getStudentDetailsByUserId(@Param("uucmsId") String uucmsId);
 
-    @Query("SELECT sd.classEntity.id FROM StudentDetails sd WHERE sd.user.Uucms_id = :uucmsId")
-    Optional<Integer> getStudentClassIdByUucmsId(String uucmsId);
-
-    StudentDetails findByUser(User user);
-
     @Modifying
     @Transactional
     @Query("DELETE FROM StudentDetails sd WHERE sd.classEntity.id = :classId")
@@ -50,10 +43,5 @@ public interface StudentDetailsRepository extends JpaRepository<StudentDetails, 
 
     @Query("SELECT sd.classEntity.currentSemester FROM StudentDetails sd WHERE sd.user.Uucms_id = :studentId")
     int getSemesterByUserId(String studentId);
-
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM StudentDetails sd WHERE sd.user.Uucms_id = :studentId")
-    void deleteByUucmsId(String studentId);
 }
 
