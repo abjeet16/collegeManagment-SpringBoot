@@ -87,6 +87,10 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Attendance records cannot be empty");
         }
 
+        if (attendanceService.existsByClassIdAndSubjectIdAndSchedulePeriod(classId, subjectId, schedulePeriod)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Attendance already marked");
+        }
+
         // Convert to list of Attendance entities in bulk
         List<Attendance> attendanceList = new ArrayList<>(attendanceRecords.size());
 

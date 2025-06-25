@@ -1,5 +1,6 @@
 package com.mynotes.services;
 
+import com.mynotes.dto.requests.AttendanceSheetRequest;
 import com.mynotes.dto.responses.*;
 import com.mynotes.enums.AttendanceStatus;
 import com.mynotes.models.Attendance;
@@ -14,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service class for handling attendance-related operations.
@@ -130,6 +134,47 @@ public class AttendanceService {
 
     public void deleteAttendanceByClassId(int classId) {
         attendanceRepository.deleteByClassId(classId);
+    }
+
+    public List<AttendanceTableResponse> getAttendanceTillDate(AttendanceSheetRequest attendanceSheetRequest) {
+        List<Attendance> attendance = attendanceRepository.findByClassIdAndSubjectId(attendanceSheetRequest.getClassId(), attendanceSheetRequest.getSubjectId());
+        if (attendance.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return buildAttendanceResponse(attendance);
+    }
+
+    public static List<AttendanceTableResponse> buildAttendanceResponse(List<Attendance> attendanceList) {
+        List<AttendanceTableResponse> responses = new ArrayList<>();
+
+        Set<String> allDatePeriods = attendanceList.stream()
+                .map(a -> a.getAttendanceDate() + "_" + a.getSchedulePeriod())
+                .collect(Collectors.toSet());
+
+        Map<String, List<Attendance>> attendanceByStudent = attendanceList.stream()
+                .collect(Collectors.groupingBy(Attendance::getStudentId));
+
+        for (Map.Entry<String, List<Attendance>> entry : attendanceByStudent.entrySet()) {
+            String studentId = entry.getKey();
+            Map<String, Boolean> dateMap = new HashMap<>();
+
+            for (String datePeriod : allDatePeriods) {
+                dateMap.put(datePeriod, false);
+            }
+
+            for (Attendance att : entry.getValue()) {
+                String key = att.getAttendanceDate() + "_" + att.getSchedulePeriod();
+                dateMap.put(key, att.getStatus() == AttendanceStatus.PRESENT);
+            }
+
+            responses.add(new AttendanceTableResponse(studentId, dateMap));
+        }
+
+        return responses;
+    }
+
+    public boolean existsByClassIdAndSubjectIdAndSchedulePeriod(Long classId, Long subjectId, int schedulePeriod) {
+        return attendanceRepository.existsByClassIdAndSubjectIdAndSchedulePeriodAndAttendanceDate(classId, subjectId, schedulePeriod, LocalDate.now());
     }
 }
 

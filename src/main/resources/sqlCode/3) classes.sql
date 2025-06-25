@@ -7,5 +7,5 @@ CREATE TABLE classes (
     section VARCHAR(10) NOT NULL,
     current_semester INT NOT NULL,
 
-    FOREIGN KEY (course_id) REFERENCES courses(id)
+    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
 );

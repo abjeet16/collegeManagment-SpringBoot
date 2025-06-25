@@ -2,7 +2,6 @@ package com.mynotes.repository;
 
 import com.mynotes.dto.responses.StudentsSubjectAttendance;
 import com.mynotes.dto.responses.SubjectAndDateDTO;
-import com.mynotes.enums.AttendanceStatus;
 import com.mynotes.models.Attendance;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -26,6 +25,8 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
             @Param("studentId") String studentId
     );
 
+    @Modifying
+    @Transactional
     @Query("DELETE FROM Attendance a WHERE a.classId = :classId")
     void deleteByClassId(int classId);
 
@@ -33,5 +34,9 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     @Transactional
     @Query("Delete from Attendance a where a.studentId = :studentId")
     void deleteByStudentId(@Param("studentId") String studentId);
+
+    List<Attendance> findByClassIdAndSubjectId(Long classId, Long subjectId);
+
+    boolean existsByClassIdAndSubjectIdAndSchedulePeriodAndAttendanceDate(Long classId, Long subjectId, int schedulePeriod, LocalDate now);
 }
 

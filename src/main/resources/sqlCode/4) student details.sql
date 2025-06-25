@@ -6,5 +6,17 @@ CREATE TABLE student_details (
     class_id INT NOT NULL,
 
     FOREIGN KEY (user_id) REFERENCES users(uucms_id) ON DELETE CASCADE,
-    FOREIGN KEY (class_id) REFERENCES classes(id)
+    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE
 );
+
+DELIMITER $$
+
+CREATE TRIGGER delete_user_after_student_details
+AFTER DELETE ON student_details
+FOR EACH ROW
+BEGIN
+  DELETE FROM users WHERE uucms_id = OLD.user_id;
+END$$
+
+DELIMITER ;
+

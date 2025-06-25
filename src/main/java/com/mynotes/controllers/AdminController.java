@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -416,5 +417,11 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
         return ResponseEntity.ok(userService.deleteStudent(studentId));
+    }
+
+    @PostMapping("/attendanceTillDate")
+    public ResponseEntity<List<AttendanceTableResponse>> getAttendanceTillDate(@RequestBody AttendanceSheetRequest attendanceSheetRequest) {
+        List<AttendanceTableResponse> attendanceTable = attendanceService.getAttendanceTillDate(attendanceSheetRequest);
+        return ResponseEntity.ok(attendanceTable);
     }
 }
