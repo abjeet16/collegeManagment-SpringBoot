@@ -3,6 +3,7 @@ package com.mynotes.controllers;
 import com.mynotes.dto.requests.StudentRegistrationDTO;
 import com.mynotes.dto.requests.*;
 import com.mynotes.dto.responses.*;
+import com.mynotes.enums.AttendanceStatus;
 import com.mynotes.enums.Role;
 import com.mynotes.models.*;
 import com.mynotes.services.*;
@@ -20,10 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -424,4 +422,56 @@ public class AdminController {
         List<AttendanceTableResponse> attendanceTable = attendanceService.getAttendanceTillDate(attendanceSheetRequest);
         return ResponseEntity.ok(attendanceTable);
     }
+
+    @PostMapping("/attendance")
+    public ResponseEntity<String> markAttendance(@RequestBody AttendanceRequest request) {
+        // Start timer
+        long startTime = System.currentTimeMillis();
+
+        // Validate input
+        List<AddAttendance> attendanceRecords = request.getAttendanceRecords();
+        if (attendanceRecords == null || attendanceRecords.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Attendance records cannot be empty");
+        }
+
+        if (attendanceService.existsByClassIdAndSubjectIdAndSchedulePeriodAndAttendanceDate(request.getClassId(), request.getSubjectId(), request.getSchedulePeriod(), request.getAttendanceDate())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Attendance already marked");
+        }
+
+        // Convert to list of Attendance entities in bulk
+        List<Attendance> attendanceList = new ArrayList<>(attendanceRecords.size());
+
+        for (AddAttendance record : attendanceRecords) {
+            Attendance attendance = new Attendance();
+            attendance.setStudentId(record.getStudentId());
+            attendance.setClassId(request.getClassId());
+            attendance.setSubjectId(request.getSubjectId());
+            attendance.setSemester(classService.getCurrentSemester(Math.toIntExact(request.getClassId())));
+            attendance.setSchedulePeriod(request.getSchedulePeriod());
+            attendance.setAttendanceDate(request.getAttendanceDate());
+            attendance.setStatus(Boolean.TRUE.equals(record.getIsPresent())
+                    ? AttendanceStatus.PRESENT
+                    : AttendanceStatus.ABSENT);
+            attendanceList.add(attendance);
+        }
+
+        try {
+            // **Use batch insert for better performance**
+            attendanceService.saveAllBatch(attendanceList);
+
+            // End timer
+            long endTime = System.currentTimeMillis();
+            long executionTime = endTime - startTime;
+
+            // Print execution time
+            System.out.println("Execution Time: " + executionTime + " ms");
+
+            return ResponseEntity.ok("Attendance marked successfully! Execution Time: " + executionTime + " ms");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to mark attendance due to an internal error.");
+        }
+    }
+
 }

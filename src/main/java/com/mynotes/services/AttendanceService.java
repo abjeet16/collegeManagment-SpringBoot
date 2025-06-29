@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -143,12 +144,18 @@ public class AttendanceService {
         }
         return buildAttendanceResponse(attendance);
     }
+    public boolean existsByClassIdAndSubjectIdAndSchedulePeriodAndAttendanceDate(Long classId, Long subjectId, int schedulePeriod, LocalDate attendanceDate) {
+        return attendanceRepository.existsByClassIdAndSubjectIdAndSchedulePeriodAndAttendanceDate(classId, subjectId, schedulePeriod, attendanceDate);
+    }
 
     public static List<AttendanceTableResponse> buildAttendanceResponse(List<Attendance> attendanceList) {
         List<AttendanceTableResponse> responses = new ArrayList<>();
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy");
+
+        // Convert date + period to formatted string keys
         Set<String> allDatePeriods = attendanceList.stream()
-                .map(a -> a.getAttendanceDate() + "_" + a.getSchedulePeriod())
+                .map(a -> a.getAttendanceDate().format(formatter) + " (Period " + a.getSchedulePeriod() + ")")
                 .collect(Collectors.toSet());
 
         Map<String, List<Attendance>> attendanceByStudent = attendanceList.stream()
@@ -163,7 +170,7 @@ public class AttendanceService {
             }
 
             for (Attendance att : entry.getValue()) {
-                String key = att.getAttendanceDate() + "_" + att.getSchedulePeriod();
+                String key = att.getAttendanceDate().format(formatter) + " (Period " + att.getSchedulePeriod() + ")";
                 dateMap.put(key, att.getStatus() == AttendanceStatus.PRESENT);
             }
 
@@ -171,10 +178,6 @@ public class AttendanceService {
         }
 
         return responses;
-    }
-
-    public boolean existsByClassIdAndSubjectIdAndSchedulePeriod(Long classId, Long subjectId, int schedulePeriod) {
-        return attendanceRepository.existsByClassIdAndSubjectIdAndSchedulePeriodAndAttendanceDate(classId, subjectId, schedulePeriod, LocalDate.now());
     }
 }
 

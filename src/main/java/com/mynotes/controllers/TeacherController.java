@@ -64,9 +64,6 @@ public class TeacherController {
 
     @PostMapping("/mark_attendance")
     public ResponseEntity<String> markAttendance(
-            @RequestParam Long classId,
-            @RequestParam Long subjectId,
-            @RequestParam int schedulePeriod,
             @RequestBody AttendanceRequest request) {
 
         // Start timer
@@ -87,7 +84,7 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Attendance records cannot be empty");
         }
 
-        if (attendanceService.existsByClassIdAndSubjectIdAndSchedulePeriod(classId, subjectId, schedulePeriod)) {
+        if (attendanceService.existsByClassIdAndSubjectIdAndSchedulePeriodAndAttendanceDate(request.getClassId(), request.getSubjectId(), request.getSchedulePeriod(),LocalDate.now())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Attendance already marked");
         }
 
@@ -97,10 +94,10 @@ public class TeacherController {
         for (AddAttendance record : attendanceRecords) {
             Attendance attendance = new Attendance();
             attendance.setStudentId(record.getStudentId());
-            attendance.setClassId(classId);
-            attendance.setSubjectId(subjectId);
-            attendance.setSemester(classService.getCurrentSemester(Math.toIntExact(classId)));
-            attendance.setSchedulePeriod(schedulePeriod);
+            attendance.setClassId(request.getClassId());
+            attendance.setSubjectId(request.getSubjectId());
+            attendance.setSemester(classService.getCurrentSemester(Math.toIntExact(request.getClassId())));
+            attendance.setSchedulePeriod(request.getSchedulePeriod());
             attendance.setAttendanceDate(LocalDate.now());
             attendance.setStatus(Boolean.TRUE.equals(record.getIsPresent())
                     ? AttendanceStatus.PRESENT
