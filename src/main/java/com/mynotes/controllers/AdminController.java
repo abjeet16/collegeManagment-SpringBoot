@@ -65,6 +65,9 @@ public class AdminController {
     // Add subject
     @PostMapping("/add_subject")
     private ResponseEntity<String> addSubject(@RequestBody AddSubjectReqDTO addSubjectReqDTO) {
+        if (addSubjectReqDTO.getSubjectId() == null || addSubjectReqDTO.getSubjectName() == null || addSubjectReqDTO.getCourse() == null || addSubjectReqDTO.getSemester() <= 0 || addSubjectReqDTO.getSemester() > 8) {
+            return ResponseEntity.badRequest().body("Invalid subject details");
+        }
         try {
             subjectService.addSubject(addSubjectReqDTO);
             return ResponseEntity.ok("Subject added successfully!");
@@ -77,6 +80,9 @@ public class AdminController {
     // Add class
     @PostMapping("/add_class")
     public ResponseEntity<String> addClass(@RequestBody AddClassReqDTO addClassReqDTO) {
+        if (addClassReqDTO.getBatchYear() <= 2000 || addClassReqDTO.getCurrentSemester() <= 0 || addClassReqDTO.getCurrentSemester() > 8) {
+            return ResponseEntity.badRequest().body("Invalid class details");
+        }
         try {
             classService.addClass(addClassReqDTO);
             return ResponseEntity.ok("Class added successfully!");
