@@ -19,7 +19,7 @@ CREATE TABLE classes (
     course_id INT NOT NULL,
     batch_year INT NOT NULL,
     section VARCHAR(10) NOT NULL,
-    current_semester INT NOT NULL,
+    current_semester INT NOT NULL CHECK (current_semester between 1 and 8),
 
     FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
 );
@@ -49,7 +49,7 @@ CREATE TABLE subject (
     id INT AUTO_INCREMENT PRIMARY KEY,
     subject_id VARCHAR(100) UNIQUE,
     subject_name VARCHAR(255),
-    semester INT,
+    semester INT CHECK (semester BETWEEN 1 AND 8),
     course_id INT,
 
     FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE

@@ -38,5 +38,8 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     List<Attendance> findByClassIdAndSubjectId(Long classId, Long subjectId);
 
     boolean existsByClassIdAndSubjectIdAndSchedulePeriodAndAttendanceDate(Long classId, Long subjectId, int schedulePeriod, LocalDate now);
+
+    @Modifying
+    void deleteBySubjectId(Integer subjectId);
 }
 

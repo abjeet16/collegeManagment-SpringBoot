@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("Admin")
 @RequiredArgsConstructor
-public class AdminProfileCon {
+public class ProfileAdminCon {
     private final PasswordEncoder passwordEncoder;
 
     private final UserService userService;

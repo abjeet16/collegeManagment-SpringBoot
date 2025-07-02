@@ -8,6 +8,7 @@ import com.mynotes.repository.CourseRepository;
 import com.mynotes.repository.SubjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +19,8 @@ public class SubjectService {
     private final SubjectRepository subjectsRepository;
 
     private final CourseRepository courseRepository;
+
+    private final AttendanceService attendanceService;
 
     private final AssignedTeacherService assignedTeacherService;
 
@@ -47,5 +50,26 @@ public class SubjectService {
                         )
                         )
                 ).toList();
+    }
+
+    @Transactional
+    public void deleteSubject(Integer subjectId) {
+        attendanceService.deleteSubjectAttendance(subjectId);
+        subjectsRepository.deleteById(subjectId);
+    }
+
+    public void updateSubject(SubjectDTO subjectDTO) {
+        // First find the existing subject
+        Subject subject = subjectsRepository.findById(subjectDTO.getSubjectId())
+                .orElseThrow(() -> new RuntimeException("Subject not found with id: " + subjectDTO.getSubjectId()));
+
+        // Update the fields
+        subject.setSubjectId(subjectDTO.getSubjectCode());
+        subject.setSubjectName(subjectDTO.getSubjectName());
+        subject.setSemester(subjectDTO.getSemester());
+        // Update other fields as needed
+
+        // Save the updated subject
+        subjectsRepository.save(subject);
     }
 }

@@ -31,6 +31,9 @@ public class ClassService {
         if (course == null) {
             throw new IllegalArgumentException("Course not found: " + addClassReqDTO.getCourse());
         }
+        if (classRepository.existsBySectionAndCourseAndCurrentSemester(addClassReqDTO.getSection(),course,addClassReqDTO.getCurrentSemester())){
+            throw new IllegalArgumentException("Class already exists: " + addClassReqDTO.getSection() + " - " + addClassReqDTO.getBatchYear());
+        }
         classEntity.setCourse(course);
         classRepository.save(classEntity);
     }
@@ -55,5 +58,23 @@ public class ClassService {
         classRepository.demoteAllClasses();
         assignedTeacherService.deleteAll();
         return "Demoted successfully";
+    }
+
+    public void updateClassDetails(int classId, AddClassReqDTO addClassReqDTO) {
+        ClassEntity classEntity = classRepository.findById(classId).orElse(null);
+        if (classEntity == null) {
+            throw new IllegalArgumentException("Class not found: " + classId);
+        }
+        Courses course = courseRepository.findByCourseName(addClassReqDTO.getCourse().toUpperCase());
+        if (course == null) {
+            throw new IllegalArgumentException("Course not found: " + addClassReqDTO.getCourse());
+        }
+        if(classRepository.existsBySectionAndCourseAndCurrentSemester(addClassReqDTO.getSection(), course, addClassReqDTO.getCurrentSemester())) {
+            throw new IllegalArgumentException("Class already exists: " + addClassReqDTO.getSection() + " - " + addClassReqDTO.getBatchYear());
+        }
+        classEntity.setBatchYear(addClassReqDTO.getBatchYear());
+        classEntity.setSection(addClassReqDTO.getSection());
+        classEntity.setCurrentSemester(addClassReqDTO.getCurrentSemester());
+        classRepository.save(classEntity);
     }
 }

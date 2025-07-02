@@ -179,6 +179,10 @@ public class AttendanceService {
 
         return responses;
     }
+
+    public void deleteSubjectAttendance(Integer subjectId) {
+        attendanceRepository.deleteBySubjectId(subjectId);
+    }
 }
 
 

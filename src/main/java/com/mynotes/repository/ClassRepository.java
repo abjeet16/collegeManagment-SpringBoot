@@ -26,4 +26,6 @@ public interface ClassRepository extends JpaRepository<ClassEntity, Integer> {
     @Modifying
     @Query("UPDATE ClassEntity c SET c.currentSemester = c.currentSemester - 1 Where c.currentSemester > 1")
     void demoteAllClasses();
+
+    boolean existsBySectionAndCourseAndCurrentSemester(String section, Courses course, int currentSemester);
 }
